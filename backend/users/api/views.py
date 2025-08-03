@@ -4,7 +4,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
