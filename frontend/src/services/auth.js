@@ -3,9 +3,8 @@ import api from "../api/axios";
 export const authService = {
   login: async (credentials) => {
     try {
-      // Send username and password for login
       const response = await api.post("/auth/login/", {
-        username: credentials.username, // Changed from email
+        username: credentials.username,
         password: credentials.password,
       });
 
@@ -14,11 +13,12 @@ export const authService = {
         return response.data;
       }
     } catch (error) {
-      console.error("Login Error:", error.response?.data);
-      throw error.response?.data || error.message;
+      // Attach the full error response to the error object
+      const enhancedError = new Error(error.message);
+      enhancedError.response = error.response;
+      throw enhancedError;
     }
   },
-
   signup: async (userData) => {
     try {
       const response = await api.post("/auth/signup/", userData);
@@ -28,6 +28,7 @@ export const authService = {
       throw error.response?.data || { message: "Signup failed" };
     }
   },
+
   logout: () => {
     localStorage.removeItem("token");
   },

@@ -6,20 +6,34 @@ import { useState } from "react";
 
 function Login() {
   const navigate = useNavigate();
-  const [error, setError] = useState("");
+  const [usernameError, setUsernameError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const formik = useFormik({
     initialValues: {
-      username: "", // Changed from email
+      username: "",
       password: "",
     },
     validationSchema: loginSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { setSubmitting }) => {
       try {
+        // Clear previous errors
+        setUsernameError("");
+        setPasswordError("");
+        
         await authService.login(values);
         navigate("/");
       } catch (error) {
-        setError(error.detail || "Login failed");
+        if (error.response?.data?.error === "username") {
+          setUsernameError(error.response.data.message);
+        } else if (error.response?.data?.error === "password") {
+          setPasswordError(error.response.data.message);
+        } else {
+          // Fallback for other errors
+          setPasswordError("Login failed. Please try again.");
+        }
+      } finally {
+        setSubmitting(false);
       }
     },
   });
@@ -32,12 +46,6 @@ function Login() {
           onSubmit={formik.handleSubmit}
         >
           <h2 className="text-2xl font-semibold mb-6">Sign In</h2>
-
-          {error && (
-            <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
-              {error}
-            </div>
-          )}
 
           <div className="space-y-4">
             <div>
@@ -55,12 +63,15 @@ function Login() {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`mt-1 block w-full px-3 py-2 border ${
-                  formik.touched.username && formik.errors.username
+                  (formik.touched.username && formik.errors.username) || usernameError
                     ? "border-red-300"
                     : "border-gray-300"
-                } rounded-md`}
+                } rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#f0c14b] focus:border-[#a88734] hover:border-[#a88734]`}
               />
-              {formik.touched.username && formik.errors.username && (
+              {usernameError && (
+                <p className="mt-1 text-sm text-red-600">{usernameError}</p>
+              )}
+              {formik.touched.username && formik.errors.username && !usernameError && (
                 <p className="mt-1 text-sm text-red-600">
                   {formik.errors.username}
                 </p>
@@ -81,10 +92,17 @@ function Login() {
                 value={formik.values.password}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#f0c14b] focus:border-[#a88734] hover:border-[#a88734]"
+                className={`mt-1 block w-full px-3 py-2 border ${
+                  (formik.touched.password && formik.errors.password) || passwordError
+                    ? "border-red-300"
+                    : "border-gray-300"
+                } rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#f0c14b] focus:border-[#a88734] hover:border-[#a88734]`}
                 autoComplete="current-password"
               />
-              {formik.touched.password && formik.errors.password && (
+              {passwordError && (
+                <p className="mt-1 text-sm text-red-600">{passwordError}</p>
+              )}
+              {formik.touched.password && formik.errors.password && !passwordError && (
                 <p className="mt-1 text-sm text-red-600">
                   {formik.errors.password}
                 </p>
