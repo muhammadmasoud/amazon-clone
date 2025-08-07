@@ -2,31 +2,22 @@ import * as Yup from "yup";
 
 const passwordRegex = /^(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
 
-export const loginSchema = Yup.object().shape({
-  email: Yup.string().email("Invalid email").required("Email is required"),
-  password: Yup.string()
-    .min(8, "Password must be at least 8 characters")
-    .matches(
-      passwordRegex,
-      "Password must contain at least one special character"
-    )
-    .required("Password is required"),
+export const loginSchema = Yup.object({
+  username: Yup.string().required("Username is required"),
+  password: Yup.string().required("Password is required"),
 });
 
 export const signupSchema = Yup.object({
-  name: Yup.string()
-    .min(2, "Name must be at least 2 characters")
-    .required("Name is required"),
+  username: Yup.string()
+    .min(2, "Username must be at least 2 characters")
+    .required("Username is required"),
   email: Yup.string()
     .email("Invalid email address")
     .required("Email is required"),
   password: Yup.string()
     .min(8, "Password must be at least 8 characters")
-    .matches(
-      passwordRegex,
-      "Password must contain at least one special character"
-    )
-    .required("Password is required"),
+    .required("Password is required")
+    .matches(passwordRegex, "Password must contain at least one special character"),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password"), null], "Passwords must match")
     .required("Please confirm your password"),
