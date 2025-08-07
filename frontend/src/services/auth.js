@@ -4,12 +4,13 @@ export const authService = {
   login: async (credentials) => {
     try {
       const response = await api.post("/auth/login/", {
-        username: credentials.username,
+        email: credentials.email,
         password: credentials.password,
       });
 
       if (response.data.access) {
         localStorage.setItem("token", response.data.access);
+        localStorage.setItem("refreshToken", response.data.refresh);
         return response.data;
       }
     } catch (error) {
@@ -19,6 +20,7 @@ export const authService = {
       throw enhancedError;
     }
   },
+
   signup: async (userData) => {
     try {
       const response = await api.post("/auth/signup/", userData);
@@ -29,7 +31,37 @@ export const authService = {
     }
   },
 
-  logout: () => {
-    localStorage.removeItem("token");
+  logout: async () => {
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      if (refreshToken) {
+        await api.post("/auth/logout/", { refresh: refreshToken });
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Continue with logout even if server request fails
+    } finally {
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
+    }
   },
+
+  getCurrentUser: async () => {
+    try {
+      const response = await api.get("/auth/profile/");
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  updateProfile: async (userData) => {
+    try {
+      const response = await api.put("/auth/profile/", userData);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  }
 };

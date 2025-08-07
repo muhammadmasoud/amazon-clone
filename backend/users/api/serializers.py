@@ -5,20 +5,15 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(write_only=True)
+    name = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password', 'password_confirm']
+        fields = ['name', 'email', 'password', 'password_confirm']
         extra_kwargs = {
             'password': {'write_only': True},
             'email': {'required': True},
-            'username': {'required': True}
         }
-
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("A user with that username already exists")
-        return value
 
     def validate_email(self, value):
         if User.objects.filter(email=value).exists():
@@ -35,9 +30,24 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         user = User(
-            username=validated_data['username'],
             email=validated_data['email']
         )
+        # Set the name as first_name
+        user.first_name = validated_data['name']
         user.set_password(validated_data['password'])
         user.save()
         return user
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='first_name', read_only=True)
+    
+    class Meta:
+        model = User
+        fields = ['name', 'email', 'first_name', 'last_name', 'date_joined', 'last_login']
+        read_only_fields = ['date_joined', 'last_login']
+    
+    def validate_email(self, value):
+        user = self.instance
+        if User.objects.filter(email=value).exclude(pk=user.pk).exists():
+            raise serializers.ValidationError("User with this email already exists")
+        return value

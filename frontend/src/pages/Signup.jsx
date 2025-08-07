@@ -1,38 +1,42 @@
 import { useFormik } from "formik";
 import { signupSchema } from "../schemas";
 import { Link, useNavigate } from "react-router-dom";
-import { authService } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 
 function Signup() {
   const navigate = useNavigate();
+  const { signup, error, clearError } = useAuth();
   const [fieldErrors, setFieldErrors] = useState({});
 
   const formik = useFormik({
     initialValues: {
-      username: "",
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
     validationSchema: signupSchema,
-    onSubmit: async (values) => {
+    onSubmit: async (values, { setSubmitting }) => {
       try {
-        setFieldErrors({}); // Clear previous errors
+        clearError();
+        setFieldErrors({}); 
         const userData = {
-          username: values.username,
+          name: values.name,
           email: values.email,
           password: values.password,
           password_confirm: values.confirmPassword,
         };
-        await authService.signup(userData);
-        navigate("/login");
+        await signup(userData);
+        navigate("/");
       } catch (error) {
         if (typeof error === "object") {
           setFieldErrors(error);
         } else {
           console.error("Unexpected error:", error);
         }
+      } finally {
+        setSubmitting(false);
       }
     },
   });
@@ -49,31 +53,32 @@ function Signup() {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="username"
+                htmlFor="name"
                 className="block text-sm font-medium text-gray-700"
               >
-                Username
+                Your name
               </label>
               <input
-                id="username"
-                name="username"
+                id="name"
+                name="name"
                 type="text"
-                value={formik.values.username}
+                value={formik.values.name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`mt-1 block w-full px-3 py-2 border ${
-                  (formik.touched.username && formik.errors.username) ||
-                  fieldErrors.username
+                  (formik.touched.name && formik.errors.name) ||
+                  fieldErrors.name
                     ? "border-red-300"
                     : "border-gray-300"
                 } rounded-md`}
+                autoComplete="name"
               />
-              {(fieldErrors.username ||
-                (formik.touched.username && formik.errors.username)) && (
+              {(fieldErrors.name ||
+                (formik.touched.name && formik.errors.name)) && (
                 <p className="mt-1 text-sm text-red-600">
-                  {Array.isArray(fieldErrors.username)
-                    ? fieldErrors.username[0]
-                    : fieldErrors.username || formik.errors.username}
+                  {Array.isArray(fieldErrors.name)
+                    ? fieldErrors.name[0]
+                    : fieldErrors.name || formik.errors.name}
                 </p>
               )}
             </div>
