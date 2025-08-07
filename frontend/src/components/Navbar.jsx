@@ -1,6 +1,18 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 
 function Navbar() {
+  const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/');
+    setShowUserDropdown(false);
+  };
+
   return (
     <nav className="bg-[#131921] text-white px-4 py-2">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -42,15 +54,55 @@ function Navbar() {
 
         {/* Navigation Links */}
         <div className="flex items-center space-x-6">
-          <Link to="/login" className="text-sm hover:text-gray-300">
-            <p className="text-gray-300">Hello, Sign in</p>
-            <p className="font-bold">Account & Lists</p>
-          </Link>
+          {isAuthenticated ? (
+            <>
+              {/* User Account Dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserDropdown(!showUserDropdown)}
+                  className="text-sm hover:text-gray-300 focus:outline-none"
+                >
+                  <p className="text-gray-300">Hello, {user?.name || user?.email}</p>
+                  <p className="font-bold">Account & Lists</p>
+                </button>
+                
+                {showUserDropdown && (
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                    <Link
+                      to="/profile"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowUserDropdown(false)}
+                    >
+                      Your Profile
+                    </Link>
+                    <Link
+                      to="/orders"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowUserDropdown(false)}
+                    >
+                      Your Orders
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    >
+                      Sign Out
+                    </button>
+                  </div>
+                )}
+              </div>
 
-          <Link to="/orders" className="text-sm">
-            <p className="text-gray-300">Returns</p>
-            <p className="font-bold">& Orders</p>
-          </Link>
+              <Link to="/orders" className="text-sm">
+                <p className="text-gray-300">Returns</p>
+                <p className="font-bold">& Orders</p>
+              </Link>
+            </>
+          ) : (
+            <Link to="/login" className="text-sm hover:text-gray-300">
+              <p className="text-gray-300">Hello, Sign in</p>
+              <p className="font-bold">Account & Lists</p>
+            </Link>
+          )}
 
           <Link to="/cart" className="relative">
             <span className="absolute -top-2 -right-2 bg-[#f08804] text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">

@@ -6,7 +6,8 @@ class CustomAuthBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         UserModel = get_user_model()
         try:
-            user = UserModel.objects.get(username=username)
+            # Use email instead of username for authentication
+            user = UserModel.objects.get(email=username)
         except UserModel.DoesNotExist:
             return None  # User doesn't exist
         
