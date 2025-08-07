@@ -1,4 +1,4 @@
 django-env/
 *.pyc
 __pycache__/*.pyc
-migrations/
+migrations/README.md
