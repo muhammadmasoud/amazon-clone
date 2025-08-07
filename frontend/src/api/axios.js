@@ -11,8 +11,9 @@ const instance = axios.create({
 instance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
-        // Don't add token for auth endpoints
-        if (token && !config.url.includes('/auth/')) {
+        // Don't add token for login and signup endpoints
+        const publicPaths = ['/auth/login/', '/auth/signup/'];
+        if (token && !publicPaths.includes(config.url)) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;

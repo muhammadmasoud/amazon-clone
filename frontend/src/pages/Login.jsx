@@ -1,35 +1,34 @@
 import { useFormik } from "formik";
 import { loginSchema } from "../schemas";
 import { Link, useNavigate } from "react-router-dom";
-import { authService } from "../services/auth";
 import { useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
   const formik = useFormik({
     initialValues: {
-      username: "",
+      email: "",
       password: "",
     },
     validationSchema: loginSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        // Clear previous errors
         setUsernameError("");
         setPasswordError("");
         
-        await authService.login(values);
+        await login(values);
         navigate("/");
       } catch (error) {
-        if (error.response?.data?.error === "username") {
+        if (error.response?.data?.error === "email") {
           setUsernameError(error.response.data.message);
         } else if (error.response?.data?.error === "password") {
           setPasswordError(error.response.data.message);
         } else {
-          // Fallback for other errors
           setPasswordError("Login failed. Please try again.");
         }
       } finally {
@@ -50,30 +49,31 @@ function Login() {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="username"
+                htmlFor="email"
                 className="block text-sm font-medium text-gray-700"
               >
-                Username
+                Email
               </label>
               <input
-                id="username"
-                name="username"
-                type="text"
-                value={formik.values.username}
+                id="email"
+                name="email"
+                type="email"
+                value={formik.values.email}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`mt-1 block w-full px-3 py-2 border ${
-                  (formik.touched.username && formik.errors.username) || usernameError
+                  (formik.touched.email && formik.errors.email) || usernameError
                     ? "border-red-300"
                     : "border-gray-300"
                 } rounded-md shadow-sm focus:outline-none focus:ring-1 focus:ring-[#f0c14b] focus:border-[#a88734] hover:border-[#a88734]`}
+                autoComplete="email"
               />
               {usernameError && (
                 <p className="mt-1 text-sm text-red-600">{usernameError}</p>
               )}
-              {formik.touched.username && formik.errors.username && !usernameError && (
+              {formik.touched.email && formik.errors.email && !usernameError && (
                 <p className="mt-1 text-sm text-red-600">
-                  {formik.errors.username}
+                  {formik.errors.email}
                 </p>
               )}
             </div>
@@ -113,7 +113,7 @@ function Login() {
           <button
             type="submit"
             disabled={formik.isSubmitting}
-            className="mt-6 w-full bg-[#f0c14b] border border-[#a88734] rounded-md py-2 px-4 text-sm font-medium text-gray-900 hover:bg-[#f4d078] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+            className="mt-6 w-full bg-[#f0c14b] border border-[#a88734] rounded-md py-2 px-4 text-sm font-medium text-gray-900 hover:bg-[#f4d078] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50"
           >
             {formik.isSubmitting ? "Signing in..." : "Sign In"}
           </button>
