@@ -15,20 +15,21 @@ This is a full-stack e-commerce application built with Django REST Framework (ba
 #### Backend Progress (✅ Complete):
 - ✅ Custom User model implemented with additional fields (mobile, profile_image, address)
 - ✅ JWT Authentication configured using SimpleJWT
-- ✅ Registration endpoint (`/account/signup/`) with validation
-- ✅ Login endpoint (`/account/login/`) using TokenObtainPairView
-- ✅ Token refresh endpoint (`/account/token/refresh/`)
-- ✅ Logout endpoint (`/account/logout/`) with token blacklisting
+- ✅ Registration endpoint (`/api/auth/signup/`) with validation
+- ✅ Login endpoint (`/api/auth/login/`) using TokenObtainPairView
+- ✅ Token refresh endpoint (`/api/auth/token/refresh/`)
+- ✅ Logout endpoint (`/api/auth/logout/`) with token blacklisting
+- ✅ profile endpoint (`/api/auth/profile/`)
 - ✅ Proper JWT settings configured with token rotation
 
 #### Frontend Progress (⚠️ Partial):
 - ✅ Login and Signup components created with proper styling
 - ✅ Form validation using Formik and Yup
 - ✅ Routing setup for login/signup pages
-- ❌ **MISSING**: API integration for authentication endpoints
-- ❌ **MISSING**: JWT token storage and management
-- ❌ **MISSING**: Role-based access control implementation
-- ❌ **MISSING**: Protected routes and auth context
+- ✅ API integration for authentication endpoints
+- ✅ JWT token storage and management
+- ✅ Role-based access control implementation
+- ✅ Protected routes and auth context
 
 ---
 
