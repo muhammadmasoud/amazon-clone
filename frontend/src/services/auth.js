@@ -52,6 +52,7 @@ export const authService = {
       const response = await api.get("/auth/profile/");
       return response.data;
     } catch (error) {
+      console.error("Get current user error:", error.response?.data || error.message);
       throw error;
     }
   },
@@ -61,7 +62,11 @@ export const authService = {
       const response = await api.put("/auth/profile/", userData);
       return response.data;
     } catch (error) {
-      throw error;
+      console.error("Update profile error:", error.response?.data || error.message);
+      if (error.response?.data) {
+        throw new Error(error.response.data.message || 'Profile update failed');
+      }
+      throw new Error('Network error occurred');
     }
   }
 };

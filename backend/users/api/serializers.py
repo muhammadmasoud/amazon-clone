@@ -5,11 +5,10 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(write_only=True)
-    name = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = User
-        fields = ['name', 'email', 'password', 'password_confirm']
+        fields = ['first_name','last_name', 'email', 'password', 'password_confirm']
         extra_kwargs = {
             'password': {'write_only': True},
             'email': {'required': True},
@@ -33,21 +32,13 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email']
         )
         # Set the name as first_name
-        user.first_name = validated_data['name']
+        user.first_name = validated_data['first_name']
+        user.last_name = validated_data['last_name']
         user.set_password(validated_data['password'])
         user.save()
         return user
 
 class UserProfileSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(source='first_name', read_only=True)
-    
     class Meta:
         model = User
-        fields = ['name', 'email', 'first_name', 'last_name', 'date_joined', 'last_login']
-        read_only_fields = ['date_joined', 'last_login']
-    
-    def validate_email(self, value):
-        user = self.instance
-        if User.objects.filter(email=value).exclude(pk=user.pk).exists():
-            raise serializers.ValidationError("User with this email already exists")
-        return value
+        fields = [ 'email', 'first_name','last_name', 'mobile', 'address']
