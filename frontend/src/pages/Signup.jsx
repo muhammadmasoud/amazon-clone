@@ -11,7 +11,8 @@ function Signup() {
 
   const formik = useFormik({
     initialValues: {
-      name: "",
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
       confirmPassword: "",
@@ -22,7 +23,8 @@ function Signup() {
         clearError();
         setFieldErrors({}); 
         const userData = {
-          name: values.name,
+          first_name: values.first_name,
+          last_name: values.last_name,
           email: values.email,
           password: values.password,
           password_confirm: values.confirmPassword,
@@ -53,32 +55,64 @@ function Signup() {
           <div className="space-y-4">
             <div>
               <label
-                htmlFor="name"
+                htmlFor="first_name"
                 className="block text-sm font-medium text-gray-700"
               >
-                Your name
+                First Name
               </label>
               <input
-                id="name"
-                name="name"
+                id="first_name"
+                name="first_name"
                 type="text"
-                value={formik.values.name}
+                value={formik.values.first_name}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 className={`mt-1 block w-full px-3 py-2 border ${
-                  (formik.touched.name && formik.errors.name) ||
-                  fieldErrors.name
+                  (formik.touched.first_name && formik.errors.first_name) ||
+                  fieldErrors.first_name
                     ? "border-red-300"
                     : "border-gray-300"
                 } rounded-md`}
-                autoComplete="name"
+                autoComplete="given-name"
               />
-              {(fieldErrors.name ||
-                (formik.touched.name && formik.errors.name)) && (
+              {(fieldErrors.first_name ||
+                (formik.touched.first_name && formik.errors.first_name)) && (
                 <p className="mt-1 text-sm text-red-600">
-                  {Array.isArray(fieldErrors.name)
-                    ? fieldErrors.name[0]
-                    : fieldErrors.name || formik.errors.name}
+                  {Array.isArray(fieldErrors.first_name)
+                    ? fieldErrors.first_name[0]
+                    : fieldErrors.first_name || formik.errors.first_name}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label
+                htmlFor="last_name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Last Name
+              </label>
+              <input
+                id="last_name"
+                name="last_name"
+                type="text"
+                value={formik.values.last_name}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                className={`mt-1 block w-full px-3 py-2 border ${
+                  (formik.touched.last_name && formik.errors.last_name) ||
+                  fieldErrors.last_name
+                    ? "border-red-300"
+                    : "border-gray-300"
+                } rounded-md`}
+                autoComplete="family-name"
+              />
+              {(fieldErrors.last_name ||
+                (formik.touched.last_name && formik.errors.last_name)) && (
+                <p className="mt-1 text-sm text-red-600">
+                  {Array.isArray(fieldErrors.last_name)
+                    ? fieldErrors.last_name[0]
+                    : fieldErrors.last_name || formik.errors.last_name}
                 </p>
               )}
             </div>

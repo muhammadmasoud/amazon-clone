@@ -77,6 +77,21 @@ export const AuthProvider = ({ children }) => {
         }
     };
 
+    const updateProfile = async (profileData) => {
+        try {
+            setError(null);
+            setLoading(true);
+            const response = await authService.updateProfile(profileData);
+            setUser(prevUser => ({ ...prevUser, ...response }));
+            return response;
+        } catch (error) {
+            setError(error.message || 'Profile update failed');
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const logout = () => {
         try {
             authService.logout();
@@ -99,6 +114,8 @@ export const AuthProvider = ({ children }) => {
         signup,
         logout,
         clearError,
+        updateProfile,
+        userProfile: user,
         isAuthenticated: !!user
     };
 
