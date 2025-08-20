@@ -6,6 +6,11 @@ from .serializers import UserSerializer, UserProfileSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .backends import CustomAuthBackend
+from .utils import send_verification_email
+from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
+
+User = get_user_model()
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -13,15 +18,91 @@ def signup(request):
     serializer = UserSerializer(data=request.data)
     if serializer.is_valid():
         user = serializer.save()
-        return Response({
+        
+        # Send verification email
+        email_sent = send_verification_email(user)
+        
+        response_data = {
             'user': {
                 'id': user.id,
                 'email': user.email,
                 'name': user.first_name
             },
-            'message': 'User created successfully'
-        }, status=status.HTTP_201_CREATED)
+            'message': 'User created successfully. Please check your email to verify your account.',
+            'email_sent': email_sent
+        }
+        
+        if not email_sent:
+            response_data['warning'] = 'Account created but verification email could not be sent. Please try resending verification email.'
+        
+        return Response(response_data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def verify_email(request, token):
+    """Verify user email with the provided token"""
+    try:
+        user = get_object_or_404(User, email_verification_token=token)
+        
+        if user.is_email_verified:
+            return Response({
+                'message': 'Email already verified',
+                'verified': True
+            }, status=status.HTTP_200_OK)
+        
+        user.is_email_verified = True
+        user.save()
+        
+        return Response({
+            'message': 'Email verified successfully! You can now log in.',
+            'verified': True
+        }, status=status.HTTP_200_OK)
+        
+    except User.DoesNotExist:
+        return Response({
+            'message': 'Invalid verification token',
+            'verified': False
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def resend_verification_email(request):
+    """Resend verification email to user"""
+    email = request.data.get('email')
+    
+    if not email:
+        return Response({
+            'message': 'Email is required'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = User.objects.get(email=email)
+        
+        if user.is_email_verified:
+            return Response({
+                'message': 'Email is already verified'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generate new verification token
+        user.generate_verification_token()
+        
+        # Send verification email
+        email_sent = send_verification_email(user)
+        
+        if email_sent:
+            return Response({
+                'message': 'Verification email sent successfully'
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'message': 'Failed to send verification email'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+    except User.DoesNotExist:
+        return Response({
+            'message': 'User with this email does not exist'
+        }, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -63,6 +144,11 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         if user is None:
             return Response(
                 {"error": "email", "message": "Email does not exist"},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        elif user == "unverified":
+            return Response(
+                {"error": "unverified", "message": "Please verify your email before logging in"},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         elif user is False:

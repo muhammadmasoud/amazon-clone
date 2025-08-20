@@ -31,6 +31,26 @@ export const authService = {
     }
   },
 
+  verifyEmail: async (token) => {
+    try {
+      const response = await api.get(`/auth/verify-email/${token}/`);
+      return response.data;
+    } catch (error) {
+      console.error("Email verification failed:", error.response?.data || error.message);
+      throw error.response?.data || { message: "Email verification failed" };
+    }
+  },
+
+  resendVerificationEmail: async (email) => {
+    try {
+      const response = await api.post("/auth/resend-verification/", { email });
+      return response.data;
+    } catch (error) {
+      console.error("Resend verification failed:", error.response?.data || error.message);
+      throw error.response?.data || { message: "Failed to resend verification email" };
+    }
+  },
+
   logout: async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");

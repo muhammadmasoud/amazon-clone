@@ -183,3 +183,14 @@ SIMPLE_JWT = {
 
     'JTI_CLAIM': 'jti',
 }
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'clone.amazon.clone@gmail.com'
+EMAIL_HOST_PASSWORD = 'wevf iefr jfmk ohnj'
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Frontend URL for email verification links
+FRONTEND_URL = 'http://localhost:5173'

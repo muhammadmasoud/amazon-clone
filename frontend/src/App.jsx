@@ -5,11 +5,14 @@ import Navbar from "./components/Navbar";
 import ErrorMessage from "./components/ErrorMessage";
 import "./App.css";
 import ProtectedRoute from "./components/ProtectedRoute"; 
+
 // Lazy load components
 const Home = lazy(() => import("./pages/Home"));
 const Login = lazy(() => import("./pages/Login"));
 const Signup = lazy(() => import("./pages/Signup"));
 const Profile = lazy(() => import("./pages/Profile"));
+const EmailVerification = lazy(() => import("./pages/EmailVerification"));
+const SignupSuccess = lazy(() => import("./pages/SignupSuccess"));
 
 function App() {
   return (
@@ -28,6 +31,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/signup-success" element={<SignupSuccess />} />
+            <Route path="/verify-email/:token" element={<EmailVerification />} />
             <Route
               path="/profile"
               element={
