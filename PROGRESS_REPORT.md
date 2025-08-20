@@ -47,6 +47,10 @@ This is a full-stack e-commerce application built with Django REST Framework (ba
   - DELETE `/products/{id}/` - Delete product
 - ✅ Product serializer with proper field validation
 - ✅ Pagination configured
+- ✅ Categories Added
+- ✅ Review Functionality Added
+- ✅ Rating Functionality Added
+- ✅ Average Rating Calculation from Reviews Added
 
 #### Frontend Progress (❌ Not Started):
 - ❌ **MISSING**: Product listing page
@@ -55,9 +59,6 @@ This is a full-stack e-commerce application built with Django REST Framework (ba
 - ❌ **MISSING**: Add to cart integration
 - ❌ **MISSING**: API calls to backend product endpoints
 - ❌ **MISSING**: Image display and handling
-
-**Note**: Categories are not implemented yet in backend
-
 ---
 
 ### 🟡 **B3 & F3 - Marzok (Cart System Logic)**
