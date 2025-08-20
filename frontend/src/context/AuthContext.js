@@ -60,14 +60,8 @@ export const AuthProvider = ({ children }) => {
             setError(null);
             setLoading(true);
             const response = await authService.signup(userData);
-            // After successful signup, automatically log in the user
-            const loginResponse = await authService.login({
-                email: userData.email,
-                password: userData.password
-            });
-            setUser(loginResponse);
-            // Fetch user profile after successful signup and login
-            await fetchUserProfile();
+            // Note: After signup, user is NOT automatically logged in
+            // They need to verify their email first
             return response;
         } catch (error) {
             setError(error.message || 'Signup failed');

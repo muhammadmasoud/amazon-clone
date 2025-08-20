@@ -3,12 +3,29 @@ import { loginSchema } from "../schemas";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../context/AuthContext";
+import { authService } from "../services/auth";
 
 function Login() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [usernameError, setUsernameError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [unverifiedError, setUnverifiedError] = useState("");
+  const [resendingEmail, setResendingEmail] = useState(false);
+  const [emailResent, setEmailResent] = useState(false);
+
+  const handleResendVerification = async (email) => {
+    try {
+      setResendingEmail(true);
+      await authService.resendVerificationEmail(email);
+      setEmailResent(true);
+      setUnverifiedError("");
+    } catch (error) {
+      setUnverifiedError(error.message || "Failed to resend verification email");
+    } finally {
+      setResendingEmail(false);
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -20,6 +37,8 @@ function Login() {
       try {
         setUsernameError("");
         setPasswordError("");
+        setUnverifiedError("");
+        setEmailResent(false);
         
         await login(values);
         navigate("/");
@@ -28,6 +47,8 @@ function Login() {
           setUsernameError(error.response.data.message);
         } else if (error.response?.data?.error === "password") {
           setPasswordError(error.response.data.message);
+        } else if (error.response?.data?.error === "unverified") {
+          setUnverifiedError(error.response.data.message);
         } else {
           setPasswordError("Login failed. Please try again.");
         }
@@ -108,6 +129,53 @@ function Login() {
                 </p>
               )}
             </div>
+
+            {/* Email verification error message */}
+            {unverifiedError && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-yellow-800">
+                      Email verification required
+                    </h3>
+                    <div className="mt-2 text-sm text-yellow-700">
+                      <p>{unverifiedError}</p>
+                      <button
+                        type="button"
+                        onClick={() => handleResendVerification(formik.values.email)}
+                        disabled={resendingEmail || !formik.values.email}
+                        className="mt-2 text-yellow-800 underline hover:text-yellow-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {resendingEmail ? 'Sending...' : 'Resend verification email'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Email resent success message */}
+            {emailResent && (
+              <div className="bg-green-50 border border-green-200 rounded-md p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <p className="text-sm text-green-700">
+                      Verification email sent! Please check your inbox and click the verification link.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <button

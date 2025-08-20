@@ -30,7 +30,11 @@ function Signup() {
           password_confirm: values.confirmPassword,
         };
         await signup(userData);
-        navigate("/");
+        
+        // Navigate to signup success page with email
+        navigate("/signup-success", { 
+          state: { email: values.email } 
+        });
       } catch (error) {
         if (typeof error === "object") {
           setFieldErrors(error);
