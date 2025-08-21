@@ -2,13 +2,14 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, UserProfileSerializer
+from .serializers import UserSerializer, UserProfileSerializer, PasswordChangeSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .backends import CustomAuthBackend
 from .utils import send_verification_email
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
+from users.permissions import IsVerifiedUser
 
 User = get_user_model()
 
@@ -131,7 +132,42 @@ def profile(request):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def change_password(request):
+    """
+    Change user password endpoint.
+    Requires old password verification.
+    """
+    serializer = PasswordChangeSerializer(data=request.data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            'message': 'Password changed successfully.'
+        }, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_orders(request):
+    """
+    Get current user's orders.
+    Only verified users can access their orders.
+    """
+    if not request.user.is_email_verified:
+        return Response({
+            'error': 'Email verification required to access orders.'
+        }, status=status.HTTP_403_FORBIDDEN)
     
+    # Import here to avoid circular imports
+    from orders.serializers import UserOrderHistorySerializer
+    from orders.models import Order
+    
+    orders = Order.objects.filter(user=request.user).prefetch_related('items__product')
+    serializer = UserOrderHistorySerializer(orders, many=True)
+    return Response(serializer.data)
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     def post(self, request, *args, **kwargs):

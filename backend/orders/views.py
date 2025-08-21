@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from .models import Order, OrderItem
 from products.models import Product
+from users.permissions import IsVerifiedUser, IsOwner
 from .serializers import (
     OrderSerializer, 
     UserOrderHistorySerializer, 
@@ -21,15 +22,15 @@ class PlaceOrderView(APIView):
     This handles the cart checkout process, validating items and creating orders.
     
     POST /api/orders/
-    - Requires user authentication
+    - Requires user authentication and email verification
     - Accepts cart items and shipping address
     - Validates product availability and stock
     - Creates order and order items
     - Updates product stock levels
     """
     
-    # Only authenticated users can place orders
-    permission_classes = [IsAuthenticated]
+    # Only authenticated and verified users can place orders
+    permission_classes = [IsAuthenticated, IsVerifiedUser]
 
     def post(self, request):
         """
@@ -44,6 +45,12 @@ class PlaceOrderView(APIView):
             "shipping_address": "123 Main St, City, State, ZIP"
         }
         """
+        # Check email verification
+        if not request.user.is_email_verified:
+            return Response({
+                'error': 'Email verification required to place orders.'
+            }, status=status.HTTP_403_FORBIDDEN)
+        
         # Get the authenticated user from the request
         user = request.user
         
@@ -53,11 +60,22 @@ class PlaceOrderView(APIView):
         shipping_address = data.get('shipping_address')  # Delivery address
 
         # Validate required data is present
-        if not cart_items or not shipping_address:
-            return Response({'detail': 'Cart or shipping info missing'}, status=400)
+        if not cart_items:
+            return Response({'detail': 'Cart cannot be empty.'}, status=400)
+        
+        if not shipping_address or not shipping_address.strip():
+            return Response({'detail': 'Shipping address is required.'}, status=400)
+
+        # Validate cart items structure
+        for item in cart_items:
+            if 'product_id' not in item or 'quantity' not in item:
+                return Response({'detail': 'Each cart item must have product_id and quantity.'}, status=400)
+            
+            if not isinstance(item['quantity'], int) or item['quantity'] <= 0:
+                return Response({'detail': 'Quantity must be a positive integer.'}, status=400)
 
         # Create the main order object
-        order = Order.objects.create(user=user, shipping_address=shipping_address)
+        order = Order.objects.create(user=user, shipping_address=shipping_address.strip())
 
         # Variable to track total order amount
         total = Decimal('0')
@@ -75,7 +93,7 @@ class PlaceOrderView(APIView):
                     # If not enough stock, delete the order and return error
                     order.delete()  # Clean up the order if stock is insufficient
                     return Response({
-                        'detail': f'Insufficient stock for {product.title}. Available: {product.stock}'
+                        'detail': f'Insufficient stock for {product.title}. Available: {product.stock}, requested: {quantity}'
                     }, status=400)
                 
                 # Create order item with current product price
@@ -111,21 +129,26 @@ class UserOrderHistoryView(generics.ListAPIView):
     API View for users to view their order history.
     
     GET /api/orders/history/
-    - Requires user authentication
+    - Requires user authentication and email verification
     - Returns paginated list of user's orders
     - Only shows orders belonging to the authenticated user
     """
     
     # Use the simplified serializer for order history
     serializer_class = UserOrderHistorySerializer
-    # Only authenticated users can access
-    permission_classes = [IsAuthenticated]
+    # Only authenticated and verified users can access
+    permission_classes = [IsAuthenticated, IsVerifiedUser]
 
     def get_queryset(self):
         """
         Filter orders to only show current user's orders.
         prefetch_related optimizes database queries by fetching related data.
         """
+        # Check email verification
+        if not self.request.user.is_email_verified:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied("Email verification required to access orders.")
+        
         return Order.objects.filter(user=self.request.user).prefetch_related('items__product')
 
 
@@ -134,21 +157,26 @@ class UserOrderDetailView(generics.RetrieveAPIView):
     API View for users to view a specific order's details.
     
     GET /api/orders/{order_id}/
-    - Requires user authentication
+    - Requires user authentication and email verification
     - Returns detailed information about a specific order
     - Users can only access their own orders (security)
     """
     
     # Use the detailed order serializer
     serializer_class = OrderSerializer
-    # Only authenticated users can access
-    permission_classes = [IsAuthenticated]
+    # Only authenticated and verified users can access
+    permission_classes = [IsAuthenticated, IsVerifiedUser]
 
     def get_queryset(self):
         """
         Filter to only orders belonging to the authenticated user.
         This ensures users can't access other users' orders.
         """
+        # Check email verification
+        if not self.request.user.is_email_verified:
+            from django.core.exceptions import PermissionDenied
+            raise PermissionDenied("Email verification required to access orders.")
+        
         return Order.objects.filter(user=self.request.user).prefetch_related('items__product')
 
 
