@@ -1,12 +1,11 @@
 import axios from "axios";
 
 // Add to Cart
-export const addToCart = (productId, quantity) => async (dispatch, getState) => {
+export const addToCart = (productId, quantity) => async (dispatch) => {
   const token = localStorage.getItem("token");
-  const res = await axios.post("/api/cart/add/", { product_id: productId, quantity }, {
+  await axios.post("/api/cart/add/", { product_id: productId, quantity }, {
     headers: { Authorization: `Bearer ${token}` }
   });
-
   dispatch(fetchCart());
 };
 
@@ -16,7 +15,15 @@ export const removeFromCart = (itemId) => async (dispatch) => {
   await axios.delete(`/api/cart/remove/${itemId}/`, {
     headers: { Authorization: `Bearer ${token}` }
   });
+  dispatch(fetchCart());
+};
 
+// Update quantity
+export const updateCartQuantity = (itemId, quantity) => async (dispatch) => {
+  const token = localStorage.getItem("token");
+  await axios.put(`/api/cart/update/${itemId}/`, { quantity }, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
   dispatch(fetchCart());
 };
 

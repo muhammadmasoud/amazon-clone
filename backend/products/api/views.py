@@ -2,16 +2,28 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view,permission_classes
 from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
-from ..models import Product
-from .serializers import ProductSerializer
+from ..models import Product,Category,Review
+from .serializers import ProductSerializer,CategorySerializer,ReviewSerializer
 #from rest_framework.permissions import AllowAny
 
 
 @api_view(['GET', 'POST'])
-#@permission_classes([AllowAny]) TESTING PURPOSES
+#@permission_classes([AllowAny])
 def view_add_product(request):
     if request.method == 'GET':
         products = Product.objects.all()
+
+        #Filter by category, from queryparam:
+        category_id = request.query_params.get('category')
+        if category_id is not None:
+            try:
+                # Convert the string parameter to an integer
+                category_id_int = int(category_id)
+                # Filter using the correct database column name
+                products = products.filter(category_id=category_id_int)
+            except ValueError:
+                return Response({"error": "Invalid category ID. Must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
+            
         paginator = PageNumberPagination()
         paginated_products = paginator.paginate_queryset(products, request)
         serialized_products = ProductSerializer(instance=paginated_products, many=True)
@@ -25,7 +37,7 @@ def view_add_product(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
-#@permission_classes([AllowAny]) TESTING PURPOSES
+#@permission_classes([AllowAny])
 def product_by_id(request, id):
     try:
         product = Product.objects.get(pk=id)
@@ -47,3 +59,40 @@ def product_by_id(request, id):
         edited_product.is_valid(raise_exception=True)
         edited_product.save()
         return Response(data=edited_product.data, status=status.HTTP_200_OK)
+    
+@api_view(['GET'])
+#@permission_classes([AllowAny])
+def category_list(request):
+    """
+    Simple endpoint to retrieve all categories.
+    """
+    categories = Category.objects.all()
+    serializer = CategorySerializer(categories, many=True)
+    return Response(serializer.data , status=status.HTTP_200_OK)
+
+@api_view(['GET', 'POST'])
+#@permission_classes([AllowAny])
+def product_reviews_list(request, product_id):
+    """
+    Handles:
+    - GET: Returns all reviews for a specific product.
+    - POST: Creates a new review for a specific product (requires auth).
+    """
+    # First, ensure the product exists
+    try:
+        product = Product.objects.get(pk=product_id)
+    except Product.DoesNotExist:
+        return Response({"error": "Product not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        # Get all reviews for this product, ordered by newest first
+        reviews = product.reviews.all() # Uses the related_name='reviews'
+        serializer = ReviewSerializer(reviews, many=True)
+        return Response(serializer.data)
+
+    elif request.method == 'POST':
+        # Create the review
+        serializer = ReviewSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save(product=product) # Pass the product to the save method
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
