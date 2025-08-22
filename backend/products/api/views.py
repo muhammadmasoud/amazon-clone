@@ -4,11 +4,11 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from ..models import Product,Category,Review
 from .serializers import ProductSerializer,CategorySerializer,ReviewSerializer
-#from rest_framework.permissions import AllowAny
+# from rest_framework.permissions import AllowAny
 
 
 @api_view(['GET', 'POST'])
-#@permission_classes([AllowAny])
+# @permission_classes([AllowAny])
 def view_add_product(request):
     if request.method == 'GET':
         products = Product.objects.all()
