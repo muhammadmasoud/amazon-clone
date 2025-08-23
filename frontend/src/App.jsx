@@ -13,6 +13,7 @@ const Signup = lazy(() => import("./pages/Signup"));
 const Profile = lazy(() => import("./pages/Profile"));
 const EmailVerification = lazy(() => import("./pages/EmailVerification"));
 const SignupSuccess = lazy(() => import("./pages/SignupSuccess"));
+const ProductDetails = lazy( () => import("./pages/ProductDetails"));
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/product/:id" element={<ProductDetails />} />
             {/* Add your other routes here */}
           </Routes>
         </Suspense>

@@ -6,6 +6,16 @@ function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+
+    const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      // Navigate to homepage with search query
+      navigate(`/?search=${encodeURIComponent(searchTerm.trim())}`);
+      setSearchTerm(''); // Clear search input
+    }
+  };
 
   const handleLogout = async () => {
     await logout();
@@ -26,12 +36,14 @@ function Navbar() {
         </Link>
 
         {/* Search Bar */}
-        <div className="flex-1 max-w-2xl mx-4">
-          <div className="relative">
+        {isAuthenticated && <div className="flex-1 max-w-2xl mx-4">
+          <form onSubmit={handleSearch} className="relative">
             <input
               type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search Amazon"
-              className="w-full py-2 px-4 rounded-lg text-black focus:outline-none"
+              className="w-full py-2 px-4 rounded-lg text-black focus:outline-none bg-white"
             />
             <button className="absolute right-0 top-0 h-full px-4 bg-[#febd69] hover:bg-[#f3a847] rounded-r-lg">
               <svg
@@ -49,8 +61,8 @@ function Navbar() {
                 />
               </svg>
             </button>
-          </div>
-        </div>
+          </form>
+        </div>}
 
         {/* Navigation Links */}
         <div className="flex items-center space-x-6">

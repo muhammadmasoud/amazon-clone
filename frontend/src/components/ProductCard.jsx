@@ -1,7 +1,13 @@
 import { Link } from 'react-router-dom';
 
 function ProductCard({ product }) {
+    const handleAddToCart = (e) => {
+    e.stopPropagation(); // Prevents the Link navigation
+    e.preventDefault();
+    // Here you'll call your addToCart function later
+  };
   return (
+    <Link to={`/product/${product.id}`} className='block'>
     <div className="bg-white border border-gray-200 overflow-hidden flex flex-col cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
       
       {/* Image Section - More spacious */}
@@ -69,7 +75,8 @@ function ProductCard({ product }) {
 
         {/* Add to Cart Button - Conditional styling */}
         <div className="mt-auto pt-3">
-          <button 
+          <button
+          onClick={handleAddToCart} 
             disabled={product.stock === 0}
             className={`w-full font-medium py-2 px-4 rounded-md transition-colors duration-200 text-sm border focus:outline-none focus:ring-2 focus:ring-offset-1 ${
               product.stock === 0 
@@ -82,7 +89,9 @@ function ProductCard({ product }) {
         </div>
       </div>
     </div>
+    </Link>
   );
+  
 }
 
 export default ProductCard;

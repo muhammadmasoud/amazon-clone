@@ -1,7 +1,7 @@
 import { useAuth } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 import { getProducts } from '../api/products';
-
+import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
 
@@ -13,7 +13,8 @@ function Home() {
   // Add pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-
+  const [searchParams, setSearchParams] = useSearchParams();
+  const searchQuery = searchParams.get('search');
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -21,7 +22,7 @@ function Home() {
         setIsLoading(true);
         setError(null)
         // This calls GET /api/products/
-        const response = await getProducts(currentPage);
+        const response = await getProducts(currentPage, null , searchQuery);
         // The data we want is in response.data
         console.log(response)
         setProducts(response.data.results);
@@ -35,7 +36,7 @@ function Home() {
     };
 
     fetchProducts();
-  }, [currentPage]);
+  }, [currentPage , searchQuery]);
 
     const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -56,7 +57,8 @@ function Home() {
         {isAuthenticated ? (
             <div className="max-w-7xl mx-auto">
             {/* Page Title */}
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-left">Featured Products</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-left">{searchQuery? `Results For ${searchQuery}`
+            : "Featured Products"}</h2>
             {error ? (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-center">
                 <p>{error}</p>
