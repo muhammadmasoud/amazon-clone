@@ -51,16 +51,20 @@ This is a full-stack e-commerce application built with Django REST Framework (ba
 - ✅ Review Functionality Added
 - ✅ Rating Functionality Added
 - ✅ Average Rating Calculation from Reviews Added
+- ✅ Search Backend Implementation
 
 #### Frontend Progress (⚠️ Partial):
 - ✅ Products Listing Page
   - Categories Filtering Not Done Yet
-- ❌ **MISSING**: Product detail page
-- ❌ **MISSING**: Product search and filtering
+- ✅ Product detail page + Reviews Frontend
+  - Adding Reviews to only ordered products still not implemented
+- ✅ Product search 
+  - filtering yet to be implemented
 - ❌ **MISSING**: Add to cart integration
 - ✅ API Calls to Products backend
 - ✅ Image Display and Handling in Product Listing Page
   - Handling Multiple Images for Same Product not Done Yet
+    - Added Gallery Component to be filled with multiple images later
 ---
 
 ### 🟡 **B3 & F3 - Marzok (Cart System Logic)**
@@ -211,5 +215,5 @@ This is a full-stack e-commerce application built with Django REST Framework (ba
 
 ### Project Completion Estimate:
 - **Backend**: ~85% complete
-- **Frontend**: ~15% complete
-- **Overall**: ~50% complete
+- **Frontend**: ~40% complete
+- **Overall**: ~60% complete
