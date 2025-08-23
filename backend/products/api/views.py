@@ -4,15 +4,20 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from ..models import Product,Category,Review
 from .serializers import ProductSerializer,CategorySerializer,ReviewSerializer
-# from rest_framework.permissions import AllowAny
-
+#from rest_framework.permissions import AllowAny
+from django.db import models
 
 @api_view(['GET', 'POST'])
-# @permission_classes([AllowAny])
+#@permission_classes([AllowAny])
 def view_add_product(request):
     if request.method == 'GET':
         products = Product.objects.all()
-
+        #Search Query:
+        search_query = request.query_params.get('q')
+        #Filter by search query:
+        if search_query:
+            products = products.filter(models.Q(title__icontains=search_query) | 
+                                       models.Q(description__icontains=search_query))
         #Filter by category, from queryparam:
         category_id = request.query_params.get('category')
         if category_id is not None:
