@@ -51,6 +51,38 @@ export const authService = {
     }
   },
 
+  forgotPassword: async (email) => {
+    try {
+      const response = await api.post("/auth/forgot-password/", { email });
+      return response.data;
+    } catch (error) {
+      console.error("Forgot password failed:", error.response?.data || error.message);
+      throw error.response?.data || { message: "Failed to send password reset email" };
+    }
+  },
+
+  validateResetToken: async (token) => {
+    try {
+      const response = await api.get(`/auth/validate-reset-token/${token}/`);
+      return response.data;
+    } catch (error) {
+      console.error("Token validation failed:", error.response?.data || error.message);
+      throw error.response?.data || { message: "Invalid or expired reset token" };
+    }
+  },
+
+  resetPassword: async (token, passwordData) => {
+    try {
+      const response = await api.post(`/auth/reset-password/${token}/`, passwordData);
+      return response.data;
+    } catch (error) {
+      console.error("Password reset failed:", error.response?.data || error.message);
+      const enhancedError = new Error(error.message);
+      enhancedError.response = error.response;
+      throw enhancedError;
+    }
+  },
+
   logout: async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
+import re
 
 User = get_user_model()
 
@@ -42,3 +43,28 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [ 'email', 'first_name','last_name', 'mobile', 'address']
+
+class PasswordResetSerializer(serializers.Serializer):
+    email = serializers.EmailField(required=True)
+    
+    def validate_email(self, value):
+        # Basic email validation (the serializer already validates email format)
+        return value
+
+class PasswordResetConfirmSerializer(serializers.Serializer):
+    password = serializers.CharField(min_length=8, write_only=True)
+    password_confirm = serializers.CharField(write_only=True)
+    
+    def validate_password(self, value):
+        # Check if password contains at least one special character
+        special_char_pattern = r'[!@#$%^&*()_+\-=\[\]{};\':"\\|,.<>\/?]'
+        if not re.search(special_char_pattern, value):
+            raise serializers.ValidationError("Password must contain at least one special character")
+        return value
+    
+    def validate(self, data):
+        if data['password'] != data['password_confirm']:
+            raise serializers.ValidationError({
+                "password_confirm": "Passwords do not match"
+            })
+        return data

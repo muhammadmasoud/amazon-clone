@@ -2,11 +2,11 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import UserSerializer, UserProfileSerializer
+from .serializers import UserSerializer, UserProfileSerializer, PasswordResetSerializer, PasswordResetConfirmSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .backends import CustomAuthBackend
-from .utils import send_verification_email
+from .utils import send_verification_email, send_password_reset_email
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 
@@ -103,6 +103,97 @@ def resend_verification_email(request):
         return Response({
             'message': 'User with this email does not exist'
         }, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def forgot_password(request):
+    """Send password reset email to user"""
+    serializer = PasswordResetSerializer(data=request.data)
+    if serializer.is_valid():
+        email = serializer.validated_data['email']
+        try:
+            user = User.objects.get(email=email)
+            
+            # Generate password reset token
+            user.generate_password_reset_token()
+            
+            # Send password reset email
+            email_sent = send_password_reset_email(user)
+            
+            if email_sent:
+                return Response({
+                    'message': 'Password reset email sent successfully. Please check your inbox.'
+                }, status=status.HTTP_200_OK)
+            else:
+                return Response({
+                    'message': 'Failed to send password reset email'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+        except User.DoesNotExist:
+            # Return success message even if user doesn't exist for security
+            return Response({
+                'message': 'Password reset email sent successfully. Please check your inbox.'
+            }, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def reset_password(request, token):
+    """Reset user password with the provided token"""
+    try:
+        user = get_object_or_404(User, password_reset_token=token)
+        
+        if not user.is_password_reset_token_valid():
+            return Response({
+                'message': 'Password reset token has expired',
+                'valid': False
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer = PasswordResetConfirmSerializer(data=request.data)
+        if serializer.is_valid():
+            # Update password
+            user.set_password(serializer.validated_data['password'])
+            user.password_reset_token = None
+            user.password_reset_token_created = None
+            user.save()
+            
+            return Response({
+                'message': 'Password reset successfully. You can now log in with your new password.',
+                'success': True
+            }, status=status.HTTP_200_OK)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    except User.DoesNotExist:
+        return Response({
+            'message': 'Invalid password reset token',
+            'valid': False
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def validate_reset_token(request, token):
+    """Validate if password reset token is still valid"""
+    try:
+        user = get_object_or_404(User, password_reset_token=token)
+        
+        if user.is_password_reset_token_valid():
+            return Response({
+                'message': 'Token is valid',
+                'valid': True
+            }, status=status.HTTP_200_OK)
+        else:
+            return Response({
+                'message': 'Token has expired',
+                'valid': False
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+    except User.DoesNotExist:
+        return Response({
+            'message': 'Invalid token',
+            'valid': False
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

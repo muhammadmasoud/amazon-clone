@@ -185,6 +185,13 @@ function Login() {
           >
             {formik.isSubmitting ? "Signing in..." : "Sign In"}
           </button>
+
+          {/* Forgot Password Link */}
+          <div className="mt-4 text-center">
+            <Link to="/forgot-password" className="text-sm text-blue-600 hover:underline">
+              Forgot your password?
+            </Link>
+          </div>
         </form>
 
         <div className="mt-6 text-center">
