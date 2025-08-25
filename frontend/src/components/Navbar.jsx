@@ -62,7 +62,7 @@ function Navbar() {
                   onClick={() => setShowUserDropdown(!showUserDropdown)}
                   className="text-sm hover:text-gray-300 focus:outline-none"
                 >
-                  <p className="text-gray-300">Hello, {user?.name || user?.email}</p>
+                  <p className="text-gray-300">Hello, {user?.first_name || user?.email}</p>
                   <p className="font-bold">Account & Lists</p>
                 </button>
                 

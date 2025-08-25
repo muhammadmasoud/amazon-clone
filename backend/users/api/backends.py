@@ -1,4 +1,3 @@
-
 from django.contrib.auth import get_user_model
 from django.contrib.auth.backends import ModelBackend
 
@@ -12,5 +11,8 @@ class CustomAuthBackend(ModelBackend):
             return None  # User doesn't exist
         
         if user.check_password(password):
-            return user  # Password is correct
+            # Check if email is verified
+            if not user.is_email_verified:
+                return "unverified"  # Email not verified
+            return user  # Password is correct and email is verified
         return False  # Password is incorrect
