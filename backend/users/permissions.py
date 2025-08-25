@@ -29,15 +29,15 @@ class IsOwner(permissions.BasePermission):
 class IsAdminOrReadOnly(permissions.BasePermission):
     """
     Custom permission to only allow admins to edit objects.
-    Regular users get read-only access.
+    Anyone can read, only admins can write.
     """
 
     def has_permission(self, request, view):
-        # Read permissions for any authenticated user
+        # Read permissions for any request (including unauthenticated)
         if request.method in permissions.SAFE_METHODS:
-            return request.user.is_authenticated
+            return True
         
-        # Write permissions only for admin users
+        # Write permissions only for authenticated admin users
         return request.user.is_authenticated and request.user.is_staff
 
 
@@ -64,3 +64,17 @@ class IsVerifiedUser(permissions.BasePermission):
             request.user.is_authenticated and 
             request.user.is_email_verified
         )
+
+
+class IsReviewOwner(permissions.BasePermission):
+    """
+    Custom permission for reviews - users can edit/delete their own reviews only.
+    """
+
+    def has_object_permission(self, request, view, obj):
+        # Read permissions for everyone
+        if request.method in permissions.SAFE_METHODS:
+            return True
+        
+        # Write permissions only for the review owner
+        return obj.user == request.user
