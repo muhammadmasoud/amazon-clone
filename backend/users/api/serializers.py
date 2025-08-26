@@ -29,8 +29,20 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password_confirm')
+        
+        # Generate a unique username from email
+        base_username = validated_data['email'].split('@')[0]
+        username = base_username
+        counter = 1
+        
+        # Ensure username is unique
+        while User.objects.filter(username=username).exists():
+            username = f"{base_username}{counter}"
+            counter += 1
+        
         user = User(
-            email=validated_data['email']
+            email=validated_data['email'],
+            username=username  # Set the generated username
         )
         # Set the name as first_name
         user.first_name = validated_data['first_name']
