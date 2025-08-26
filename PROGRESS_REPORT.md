@@ -55,11 +55,10 @@ This is a full-stack e-commerce application built with Django REST Framework (ba
 
 #### Frontend Progress (⚠️ Partial):
 - ✅ Products Listing Page
-  - Categories Filtering Not Done Yet
+  -✅ Categories Filtering
 - ✅ Product detail page + Reviews Frontend
   - Adding Reviews to only ordered products still not implemented
 - ✅ Product search 
-  - filtering yet to be implemented
 - ❌ **MISSING**: Add to cart integration
 - ✅ API Calls to Products backend
 - ✅ Image Display and Handling in Product Listing Page

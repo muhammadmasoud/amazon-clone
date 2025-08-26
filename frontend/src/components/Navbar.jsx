@@ -1,12 +1,15 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useState } from 'react';
 
-function Navbar() {
+function Navbar({ setShowCategories }) {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+
+  const location = useLocation();
+  const isHomePage = location.pathname === '/';
 
     const handleSearch = (e) => {
     e.preventDefault();
@@ -34,6 +37,16 @@ function Navbar() {
             className="h-8 object-contain"
           />
         </Link>
+        {/* Add Categories Toggle Button */}
+          {isHomePage && isAuthenticated && <button
+            onClick={() => setShowCategories(true)}
+            className="flex items-center text-sm text-white hover:text-gray-300 ml-4"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            All
+          </button>}
 
         {/* Search Bar */}
         {isAuthenticated && <div className="flex-1 max-w-2xl mx-4">

@@ -4,8 +4,9 @@ import { getProducts } from '../api/products';
 import { useSearchParams } from 'react-router-dom';
 import ProductCard from '../components/ProductCard';
 import Pagination from '../components/Pagination';
+import CategorySidebar from '../components/CategorySidebar';
 
-function Home() {
+function Home({ showCategories, setShowCategories }) {
   const { isAuthenticated, user } = useAuth();
   const [products, setProducts] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,8 +14,12 @@ function Home() {
   // Add pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+
   const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get('search');
+
+  const [selectedCategory, setSelectedCategory] = useState(null); // Add category state
+  const [selectedCategoryName, setSelectedCategoryName] = useState('');
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -22,7 +27,7 @@ function Home() {
         setIsLoading(true);
         setError(null)
         // This calls GET /api/products/
-        const response = await getProducts(currentPage, null , searchQuery);
+        const response = await getProducts(currentPage, selectedCategory , searchQuery);
         // The data we want is in response.data
         console.log(response)
         setProducts(response.data.results);
@@ -36,29 +41,57 @@ function Home() {
     };
 
     fetchProducts();
-  }, [currentPage , searchQuery]);
+  }, [currentPage , searchQuery, selectedCategory]);
 
     const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
     window.scrollTo({ top: 0, behavior: 'smooth' }); // Scroll to top on page change
   };
 
+    const handleCategorySelect = (categoryId,categoryName) => {
+    setSelectedCategory(categoryId);
+    setSelectedCategoryName(categoryName);
+    setShowCategories(false); // Close sidebar
+    setCurrentPage(1); // Reset to first page
+  };
+
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Add CategorySidebar */}
+      <CategorySidebar
+        isOpen={showCategories}
+        onClose={() => setShowCategories(false)}
+        onSelectCategory={handleCategorySelect}
+      />
       <div className="max-w-7xl mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
-            Welcome to Amazon Clone
+              Welcome to Amazon Clone
           </h1>
+
           <p className="text-xl text-gray-600 mb-8">
             Your one-stop shop for everything you need
           </p>
-          
+        {/* Update page title to show category */}
+        <h2 className="text-2xl font-bold text-gray-900 mb-6 text-left">
+          {selectedCategory 
+            ? `Category: ${selectedCategoryName}` 
+            : searchQuery 
+            ? `Search Results for "${searchQuery}"`
+            : ""
+          }
+        </h2>
+        {/* Add Clear Filter button if category is selected */}
+        {selectedCategory && (
+        <button
+            onClick={() => setSelectedCategory(null)}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1 rounded-md text-sm mb-4"
+          >
+            Clear Filter
+          </button>
+        )}
         {isAuthenticated ? (
             <div className="max-w-7xl mx-auto">
-            {/* Page Title */}
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-left">{searchQuery? `Results For ${searchQuery}`
-            : "Featured Products"}</h2>
             {error ? (
               <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-center">
                 <p>{error}</p>

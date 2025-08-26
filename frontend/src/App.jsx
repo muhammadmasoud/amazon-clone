@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useState} from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
@@ -18,11 +18,12 @@ const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const ProductDetails = lazy( () => import("./pages/ProductDetails"));
 
 function App() {
+  const [showCategories, setShowCategories] = useState(false); 
   return (
     <BrowserRouter>
       <AuthProvider>
         <ErrorMessage />
-        <Navbar />
+        <Navbar setShowCategories={setShowCategories}/>
         <Suspense
           fallback={
             <div className="min-h-screen flex items-center justify-center">
@@ -31,7 +32,7 @@ function App() {
           }
         >
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route path="/" element={<Home showCategories={showCategories} setShowCategories={setShowCategories}/>} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/signup-success" element={<SignupSuccess />} />
