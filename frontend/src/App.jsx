@@ -4,7 +4,7 @@ import { AuthProvider } from "./context/AuthContext";
 import Navbar from "./components/Navbar";
 import ErrorMessage from "./components/ErrorMessage";
 import "./App.css";
-import ProtectedRoute from "./components/ProtectedRoute"; 
+import ProtectedRoute from "./components/ProtectedRoute";
 
 // Lazy load components
 const Home = lazy(() => import("./pages/Home"));
@@ -15,7 +15,10 @@ const EmailVerification = lazy(() => import("./pages/EmailVerification"));
 const SignupSuccess = lazy(() => import("./pages/SignupSuccess"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
-const ProductDetails = lazy( () => import("./pages/ProductDetails"));
+const ProductDetails = lazy(() => import("./pages/ProductDetails"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage")); 
+const OrderConfirmation = lazy(() => import("./pages/OrderConfirmation"));
+
 
 function App() {
   return (
@@ -47,7 +50,9 @@ function App() {
               }
             />
             <Route path="/product/:id" element={<ProductDetails />} />
-            {/* Add your other routes here */}
+            <Route path="/checkout" element={<CheckoutPage />} /> 
+            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+
           </Routes>
         </Suspense>
       </AuthProvider>
