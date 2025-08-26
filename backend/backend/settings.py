@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt.token_blacklist',
+    'cart',
     'orders',
     'products',
     'users',
@@ -213,7 +214,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'clone.amazon.clone@gmail.com'
-EMAIL_HOST_PASSWORD = 'wevf iefr jfmk ohnj'
+EMAIL_HOST_PASSWORD = 'wevfiefrjfmkohnj'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Frontend URL for email verification links

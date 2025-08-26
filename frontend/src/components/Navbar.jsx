@@ -1,9 +1,11 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useSelector } from 'react-redux';
 import { useState } from 'react';
 
 function Navbar({ setShowCategories }) {
   const { user, logout, isAuthenticated } = useAuth();
+  const cart = useSelector((state) => state.cart);
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -32,7 +34,7 @@ function Navbar({ setShowCategories }) {
         {/* Logo */}
         <Link to="/" className="flex items-center">
           <img
-            src="/amazon-logo-white.png"
+            src="public/vite.svg"
             alt="Amazon"
             className="h-8 object-contain"
           />
@@ -131,7 +133,7 @@ function Navbar({ setShowCategories }) {
 
           <Link to="/cart" className="relative">
             <span className="absolute -top-2 -right-2 bg-[#f08804] text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-              0
+              {cart.items?.length || 0}
             </span>
             <svg
               xmlns="http://www.w3.org/2000/svg"

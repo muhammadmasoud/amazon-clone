@@ -1,4 +1,4 @@
-function ProductReview({ review }) {
+function ProductReviews({ review }) {
   return (
     <div className="border-b border-gray-200 py-6">
       {/* Review Header */}
@@ -33,4 +33,4 @@ function ProductReview({ review }) {
   );
 }
 
-export default ProductReview;
+export default ProductReviews;

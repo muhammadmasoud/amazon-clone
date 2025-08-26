@@ -20,6 +20,10 @@ export const getProductReviews = (productId) => {
   return instance.get(`/products/${productId}/reviews/`);
 };
 
+// Function to create a new review for a product
+export const createProductReview = (productId, reviewData) => {
+  return instance.post(`/products/${productId}/reviews/`, reviewData);
+};
 
 // Function to get all categories (for our filter dropdown later)
 export const getCategories = () => {

@@ -4,7 +4,7 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from ..models import Product,Category,Review
 from .serializers import ProductSerializer,CategorySerializer,ReviewSerializer
-#from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated
 from django.db import models
 
 @api_view(['GET', 'POST'])
@@ -76,7 +76,6 @@ def category_list(request):
     return Response(serializer.data , status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
-#@permission_classes([AllowAny])
 def product_reviews_list(request, product_id):
     """
     Handles:
@@ -96,6 +95,15 @@ def product_reviews_list(request, product_id):
         return Response(serializer.data)
 
     elif request.method == 'POST':
+        # Check if user is authenticated
+        if not request.user.is_authenticated:
+            return Response({"error": "Authentication required to write a review."}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        # Check if user has already reviewed this product
+        existing_review = Review.objects.filter(user=request.user, product=product).exists()
+        if existing_review:
+            return Response({"error": "You have already reviewed this product."}, status=status.HTTP_400_BAD_REQUEST)
+        
         # Create the review
         serializer = ReviewSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)

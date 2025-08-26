@@ -16,6 +16,9 @@ const SignupSuccess = lazy(() => import("./pages/SignupSuccess"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const ProductDetails = lazy( () => import("./pages/ProductDetails"));
+const OrderHistory = lazy(() => import("./pages/OrderHistory"));
+const OrderDetails = lazy(() => import("./pages/OrderDetails"));
+const Cartpage = lazy(() => import("./pages/Cartpage"));
 
 function App() {
   const [showCategories, setShowCategories] = useState(false); 
@@ -44,6 +47,30 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders"
+              element={
+                <ProtectedRoute>
+                  <OrderHistory />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/orders/:id"
+              element={
+                <ProtectedRoute>
+                  <OrderDetails />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/cart"
+              element={
+                <ProtectedRoute>
+                  <Cartpage />
                 </ProtectedRoute>
               }
             />

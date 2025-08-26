@@ -1,7 +1,8 @@
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from .models import Cart, CartItem, Product
+from .models import Cart, CartItem
+from products.models import Product
 from .serializers import CartSerializer
 
 
@@ -21,7 +22,7 @@ class AddToCartView(APIView):
         product_id = request.data.get("product_id")
         quantity = request.data.get("quantity", 1)
 
-        # تحقق من صحة الكمية
+        # Validate quantity
         try:
             quantity = int(quantity)
             if quantity < 1:
@@ -29,7 +30,7 @@ class AddToCartView(APIView):
         except ValueError:
             return Response({"error": "Quantity must be a number"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # تحقق من وجود المنتج
+        # Check if product exists
         try:
             product = Product.objects.get(id=product_id)
         except Product.DoesNotExist:
