@@ -44,8 +44,17 @@ def create_payment_intent(request):
         # Handle cart checkout vs existing order
         if order_id == 'cart-checkout':
             # Create order from cart items
-            from cart.models import CartItem
-            cart_items = CartItem.objects.filter(cart__user=request.user)
+            from cart.models import CartItem, Cart
+            
+            # Get or create cart for user
+            try:
+                cart = Cart.objects.get(user=request.user)
+                cart_items = CartItem.objects.filter(cart=cart)
+            except Cart.DoesNotExist:
+                return Response(
+                    {'error': 'No cart found for user'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
             
             if not cart_items.exists():
                 return Response(
@@ -57,20 +66,39 @@ def create_payment_intent(request):
             total_amount = sum(item.quantity * item.product.unit_price for item in cart_items)
             
             # Create order from cart
-            order = Order.objects.create(
-                user=request.user,
-                total_amount=total_amount,
-                status='pending'
-            )
+            try:
+                order = Order.objects.create(
+                    user=request.user,
+                    total_amount=total_amount,
+                    status='pending',
+                    shipping_address=''  # Will be updated when order is confirmed
+                )
+                logger.info(f"Order created: {order.id} for user: {request.user.id}")
+            except Exception as e:
+                logger.error(f"Error creating order: {e}")
+                return Response(
+                    {'error': f'Failed to create order: {str(e)}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
             
             # Add order items
             from orders.models import OrderItem
-            for cart_item in cart_items:
-                OrderItem.objects.create(
-                    order=order,
-                    product=cart_item.product,
-                    quantity=cart_item.quantity,
-                    price=cart_item.product.unit_price
+            try:
+                for cart_item in cart_items:
+                    OrderItem.objects.create(
+                        order=order,
+                        product=cart_item.product,
+                        quantity=cart_item.quantity,
+                        price=cart_item.product.unit_price
+                    )
+                logger.info(f"Created {cart_items.count()} order items for order: {order.id}")
+            except Exception as e:
+                logger.error(f"Error creating order items: {e}")
+                # Clean up order if item creation fails
+                order.delete()
+                return Response(
+                    {'error': f'Failed to create order items: {str(e)}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         else:
             # Get existing order
@@ -83,7 +111,16 @@ def create_payment_intent(request):
                 )
         
         # Create payment intent
-        payment, intent = StripeService.create_payment_intent(order, request.user)
+        try:
+            logger.info(f"Creating payment intent for order: {order.id}, amount: {order.total_amount}")
+            payment, intent = StripeService.create_payment_intent(order, request.user)
+            logger.info(f"Payment intent created successfully: {payment.payment_id}")
+        except Exception as e:
+            logger.error(f"Error creating payment intent: {e}")
+            return Response(
+                {'error': f'Payment processing error: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
         
         return Response({
             'payment_id': payment.payment_id,

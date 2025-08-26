@@ -24,8 +24,6 @@ const Cartpage = lazy(() => import("./pages/Cartpage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const PaymentPage = lazy(() => import("./pages/PaymentPage"));
 const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
-const StripeTestPage = lazy(() => import("./pages/StripeTestPage"));
-const QuickTestPage = lazy(() => import("./pages/QuickTestPage"));
 
 function App() {
   const [showCategories, setShowCategories] = useState(false); 
@@ -109,8 +107,6 @@ function App() {
             <Route path="/track" element={<OrderTracking />} />
             <Route path="/track/:orderNumber" element={<OrderTracking />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/stripe-test" element={<StripeTestPage />} />
-            <Route path="/payment-test" element={<QuickTestPage />} />
             {/* Add your other routes here */}
           </Routes>
         </Suspense>
