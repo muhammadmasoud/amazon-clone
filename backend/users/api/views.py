@@ -229,24 +229,34 @@ class CustomTokenObtainPairView(TokenObtainPairView):
         email = request.data.get('email')
         password = request.data.get('password')
         
+        if not email or not password:
+            return Response(
+                {"error": "validation", "message": "Email and password are required"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         auth_backend = CustomAuthBackend()
         user = auth_backend.authenticate(request, username=email, password=password)
         
         if user is None:
-            return Response(
-                {"error": "email", "message": "Email does not exist"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        elif user == "unverified":
-            return Response(
-                {"error": "unverified", "message": "Please verify your email before logging in"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
-        elif user is False:
-            return Response(
-                {"error": "password", "message": "Incorrect password"},
-                status=status.HTTP_401_UNAUTHORIZED
-            )
+            # Check if user exists to give better error message
+            try:
+                existing_user = User.objects.get(email=email)
+                if not existing_user.is_email_verified:
+                    return Response(
+                        {"error": "unverified", "message": "Please verify your email before logging in"},
+                        status=status.HTTP_401_UNAUTHORIZED
+                    )
+                else:
+                    return Response(
+                        {"error": "password", "message": "Incorrect password"},
+                        status=status.HTTP_401_UNAUTHORIZED
+                    )
+            except User.DoesNotExist:
+                return Response(
+                    {"error": "email", "message": "Email does not exist"},
+                    status=status.HTTP_401_UNAUTHORIZED
+                )
         
         # If we get here, authentication succeeded
         serializer = self.get_serializer(data=request.data)

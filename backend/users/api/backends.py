@@ -4,15 +4,26 @@ from django.contrib.auth.backends import ModelBackend
 class CustomAuthBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         UserModel = get_user_model()
+        
+        if username is None or password is None:
+            return None
+            
         try:
-            # Use email instead of username for authentication
+            # Since USERNAME_FIELD is 'email', username parameter contains the email
             user = UserModel.objects.get(email=username)
         except UserModel.DoesNotExist:
             return None  # User doesn't exist
         
         if user.check_password(password):
-            # Check if email is verified
+            # For Django admin, don't check email verification
+            if (hasattr(request, 'resolver_match') and 
+                request.resolver_match and 
+                hasattr(request.resolver_match, 'namespace') and 
+                request.resolver_match.namespace and 
+                'admin' in request.resolver_match.namespace):
+                return user
+            # For API authentication, check email verification
             if not user.is_email_verified:
-                return "unverified"  # Email not verified
-            return user  # Password is correct and email is verified
-        return False  # Password is incorrect
+                return None
+            return user
+        return None
