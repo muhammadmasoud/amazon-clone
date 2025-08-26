@@ -1,10 +1,56 @@
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { addToCart } from '../redux/actions/cartActions';
+import { useAuth } from '../context/AuthContext';
+import { useState } from 'react';
 
 function ProductCard({ product }) {
-    const handleAddToCart = (e) => {
+  const dispatch = useDispatch();
+  const { isAuthenticated } = useAuth();
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleAddToCart = async (e) => {
     e.stopPropagation(); // Prevents the Link navigation
     e.preventDefault();
-    // Here you'll call your addToCart function later
+    
+    if (!isAuthenticated) {
+      alert('Please log in to add items to cart');
+      return;
+    }
+
+    if (product.stock === 0) {
+      return;
+    }
+
+    try {
+      setIsAdding(true);
+      await dispatch(addToCart(product.id, 1));
+      // Show success feedback with a temporary message
+      const button = e.target;
+      const originalText = button.textContent;
+      button.textContent = '✓ Added!';
+      button.style.backgroundColor = '#10B981';
+      
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.backgroundColor = '';
+      }, 2000);
+      
+    } catch (error) {
+      console.error('Failed to add to cart:', error);
+      // Show error message briefly
+      const button = e.target;
+      const originalText = button.textContent;
+      button.textContent = 'Error - Try Again';
+      button.style.backgroundColor = '#EF4444';
+      
+      setTimeout(() => {
+        button.textContent = originalText;
+        button.style.backgroundColor = '';
+      }, 2000);
+    } finally {
+      setIsAdding(false);
+    }
   };
   return (
     <Link to={`/product/${product.id}`} className='block'>
@@ -76,15 +122,22 @@ function ProductCard({ product }) {
         {/* Add to Cart Button - Conditional styling */}
         <div className="mt-auto pt-3">
           <button
-          onClick={handleAddToCart} 
-            disabled={product.stock === 0}
+            onClick={handleAddToCart} 
+            disabled={product.stock === 0 || isAdding}
             className={`w-full font-medium py-2 px-4 rounded-md transition-colors duration-200 text-sm border focus:outline-none focus:ring-2 focus:ring-offset-1 ${
               product.stock === 0 
                 ? 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed' 
+                : isAdding
+                ? 'bg-gray-400 text-gray-600 border-gray-500 cursor-not-allowed'
                 : 'bg-[#febd69] hover:bg-[#f3a847] text-gray-900 focus:ring-yellow-500'
             }`}
           >
-            {product.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+            {product.stock === 0 
+              ? 'Out of Stock' 
+              : isAdding 
+              ? 'Adding...' 
+              : 'Add to Cart'
+            }
           </button>
         </div>
       </div>

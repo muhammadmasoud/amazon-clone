@@ -1,7 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useSelector } from 'react-redux';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 function Navbar({ setShowCategories }) {
   const { user, logout, isAuthenticated } = useAuth();
@@ -9,9 +9,24 @@ function Navbar({ setShowCategories }) {
   const navigate = useNavigate();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const dropdownRef = useRef(null);
 
   const location = useLocation();
   const isHomePage = location.pathname === '/';
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowUserDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
     const handleSearch = (e) => {
     e.preventDefault();
@@ -84,7 +99,7 @@ function Navbar({ setShowCategories }) {
           {isAuthenticated ? (
             <>
               {/* User Account Dropdown */}
-              <div className="relative">
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setShowUserDropdown(!showUserDropdown)}
                   className="text-sm hover:text-gray-300 focus:outline-none"
@@ -109,6 +124,13 @@ function Navbar({ setShowCategories }) {
                     >
                       Your Orders
                     </Link>
+                    <Link
+                      to="/track"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowUserDropdown(false)}
+                    >
+                      Track Order
+                    </Link>
                     <button
                       onClick={handleLogout}
                       className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -119,9 +141,33 @@ function Navbar({ setShowCategories }) {
                 )}
               </div>
 
-              <Link to="/orders" className="text-sm">
+              <Link 
+                to="/orders" 
+                className="text-sm hover:text-gray-300 transition-colors duration-200"
+                onClick={() => setShowUserDropdown(false)}
+              >
                 <p className="text-gray-300">Returns</p>
                 <p className="font-bold">& Orders</p>
+              </Link>
+
+              <Link to="/cart" className="relative">
+                <span className="absolute -top-2 -right-2 bg-[#f08804] text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cart.items?.length || 0}
+                </span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-8 w-8"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                  />
+                </svg>
               </Link>
             </>
           ) : (
@@ -130,26 +176,6 @@ function Navbar({ setShowCategories }) {
               <p className="font-bold">Account & Lists</p>
             </Link>
           )}
-
-          <Link to="/cart" className="relative">
-            <span className="absolute -top-2 -right-2 bg-[#f08804] text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-              {cart.items?.length || 0}
-            </span>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-8 w-8"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-              />
-            </svg>
-          </Link>
         </div>
       </div>
     </nav>

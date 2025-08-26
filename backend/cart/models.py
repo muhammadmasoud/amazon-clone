@@ -3,6 +3,7 @@ from users.models import User
 from products.models import Product
 from decimal import Decimal
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 class Cart(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -56,7 +57,7 @@ class CartItem(models.Model):
     )
     # Store price at the time of adding to cart (for price protection)
     price_when_added = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    added_at = models.DateTimeField(auto_now_add=True)
+    added_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
