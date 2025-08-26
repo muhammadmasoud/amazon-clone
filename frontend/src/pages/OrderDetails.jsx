@@ -188,7 +188,7 @@ export default function OrderDetails() {
         </div>
 
         {/* Tab Content */}
-        {activeTab === 'details' && <OrderDetailsTab order={order} />}
+        {activeTab === 'details' && <OrderDetailsTab order={order} navigate={navigate} />}
         {activeTab === 'tracking' && <OrderTrackingTab order={order} timeline={getOrderTimeline()} />}
         {activeTab === 'invoice' && <OrderInvoiceTab order={order} />}
       </div>
@@ -197,7 +197,7 @@ export default function OrderDetails() {
 }
 
 // Order Details Tab
-function OrderDetailsTab({ order }) {
+function OrderDetailsTab({ order, navigate }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Order Items */}
@@ -355,7 +355,19 @@ function OrderDetailsTab({ order }) {
               </button>
             )}
             
-            <button className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+            <button 
+              onClick={() => {
+                console.log('Contact Support button clicked, order:', order);
+                navigate('/contact', {
+                  state: {
+                    category: 'order_issue',
+                    orderNumber: order?.order_number || order?.id,
+                    subject: `Issue with Order #${order?.order_number || order?.id}`,
+                    message: `I need assistance with my order #${order?.order_number || order?.id}${order?.created_at ? ` placed on ${formatDate(order.created_at)}` : ''}.\n\nOrder Status: ${order?.status_display || order?.status || 'Unknown'}\nTotal Amount: $${order?.total_amount ? parseFloat(order.total_amount).toFixed(2) : '0.00'}\n\nPlease describe your issue below:`
+                  }
+                });
+              }}
+              className="w-full inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
               <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>

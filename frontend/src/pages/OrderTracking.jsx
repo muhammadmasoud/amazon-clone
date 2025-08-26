@@ -1,16 +1,36 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { trackOrder } from '../api/orders';
-import { formatDate } from '../utils/dateUtils';
+
+// Safe date formatting function
+const formatDate = (dateString) => {
+  try {
+    if (!dateString) return 'N/A';
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    console.error('Date formatting error:', error);
+    return 'Invalid Date';
+  }
+};
 
 export default function OrderTracking() {
   const { orderNumber } = useParams();
+  const navigate = useNavigate();
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [trackingInput, setTrackingInput] = useState(orderNumber || '');
 
+  console.log('OrderTracking render:', { orderNumber, loading, error, hasOrder: !!order });
+
   useEffect(() => {
+    console.log('OrderTracking useEffect triggered:', orderNumber);
     if (orderNumber) {
       handleTrackOrder(orderNumber);
     } else {
@@ -19,6 +39,8 @@ export default function OrderTracking() {
   }, [orderNumber]);
 
   const handleTrackOrder = async (trackingNumber = trackingInput) => {
+    console.log('handleTrackOrder called with:', trackingNumber);
+    
     if (!trackingNumber.trim()) {
       setError('Please enter a valid order number');
       return;
@@ -27,37 +49,53 @@ export default function OrderTracking() {
     try {
       setLoading(true);
       setError('');
+      console.log('Making API call to track order:', trackingNumber);
       const response = await trackOrder(trackingNumber);
-      setOrder(response.data);
+      console.log('API response received:', response);
+      console.log('Response data:', response.data);
+      console.log('Order object:', response.data.order);
+      
+      // The API returns { order: {...}, timeline: [...] }
+      // So we need to access response.data.order, not response.data
+      const orderData = response.data.order || response.data;
+      console.log('Processed order data:', orderData);
+      setOrder(orderData);
     } catch (err) {
-      setError('Order not found. Please check your order number and try again.');
       console.error('Error tracking order:', err);
+      const errorMessage = err.response?.data?.detail || 'Order not found. Please check your order number and try again.';
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
   };
 
   const getOrderTimeline = () => {
+    console.log('getOrderTimeline called with order:', order);
     if (!order) return [];
 
-    const baseStatuses = [
-      { status: 'pending', label: 'Order Placed', icon: '📝', description: 'Your order has been received and is being processed' },
-      { status: 'confirmed', label: 'Order Confirmed', icon: '✅', description: 'Your order has been confirmed and is being prepared' },
-      { status: 'processing', label: 'Processing', icon: '⚙️', description: 'Your order is being prepared for shipment' },
-      { status: 'packed', label: 'Packed', icon: '📦', description: 'Your order has been packed and is ready for pickup' },
-      { status: 'shipped', label: 'Shipped', icon: '🚚', description: 'Your order is on its way' },
-      { status: 'out_for_delivery', label: 'Out for Delivery', icon: '🛻', description: 'Your order is out for delivery' },
-      { status: 'delivered', label: 'Delivered', icon: '✅', description: 'Your order has been delivered' }
-    ];
+    try {
+      const baseStatuses = [
+        { status: 'pending', label: 'Order Placed', icon: '📝', description: 'Your order has been received and is being processed' },
+        { status: 'confirmed', label: 'Order Confirmed', icon: '✅', description: 'Your order has been confirmed and is being prepared' },
+        { status: 'processing', label: 'Processing', icon: '⚙️', description: 'Your order is being prepared for shipment' },
+        { status: 'packed', label: 'Packed', icon: '📦', description: 'Your order has been packed and is ready for pickup' },
+        { status: 'shipped', label: 'Shipped', icon: '🚚', description: 'Your order is on its way' },
+        { status: 'out_for_delivery', label: 'Out for Delivery', icon: '🛻', description: 'Your order is out for delivery' },
+        { status: 'delivered', label: 'Delivered', icon: '✅', description: 'Your order has been delivered' }
+      ];
 
-    const currentStatusIndex = baseStatuses.findIndex(s => s.status === order.status);
-    
-    return baseStatuses.map((statusItem, index) => ({
-      ...statusItem,
-      completed: index <= currentStatusIndex || order.status === 'delivered',
-      current: statusItem.status === order.status,
-      cancelled: order.status === 'cancelled'
-    }));
+      const currentStatusIndex = baseStatuses.findIndex(s => s.status === (order.status || 'pending'));
+      
+      return baseStatuses.map((statusItem, index) => ({
+        ...statusItem,
+        completed: index <= currentStatusIndex || (order.status === 'delivered'),
+        current: statusItem.status === (order.status || 'pending'),
+        cancelled: order.status === 'cancelled'
+      }));
+    } catch (error) {
+      console.error('Error in getOrderTimeline:', error);
+      return [];
+    }
   };
 
   const getStatusColor = (status) => {
@@ -132,7 +170,7 @@ export default function OrderTracking() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 mb-1">Order Number</h3>
-                  <p className="text-lg font-semibold">#{order.order_number || order.id}</p>
+                  <p className="text-lg font-semibold">#{order.order_number || order.id || 'N/A'}</p>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 mb-1">Order Date</h3>
@@ -140,13 +178,13 @@ export default function OrderTracking() {
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 mb-1">Status</h3>
-                  <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(order.status)}`}>
-                    {order.status_display || order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ')}
+                  <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium border ${getStatusColor(order.status || 'pending')}`}>
+                    {order.status_display || (order.status ? order.status.charAt(0).toUpperCase() + order.status.slice(1).replace('_', ' ') : 'Pending')}
                   </span>
                 </div>
                 <div>
                   <h3 className="text-sm font-medium text-gray-500 mb-1">Total Amount</h3>
-                  <p className="text-lg font-semibold">${parseFloat(order.total_amount).toFixed(2)}</p>
+                  <p className="text-lg font-semibold">${order.total_amount ? parseFloat(order.total_amount).toFixed(2) : '0.00'}</p>
                 </div>
               </div>
 
@@ -167,7 +205,7 @@ export default function OrderTracking() {
                 </div>
               )}
 
-              {order.estimated_delivery_days && order.status !== 'delivered' && order.status !== 'cancelled' && (
+              {(order.estimated_delivery_days || order.estimated_delivery_days === 0) && (order.status || 'pending') !== 'delivered' && (order.status || 'pending') !== 'cancelled' && (
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg">
                   <div className="flex items-center gap-2">
                     <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -188,7 +226,7 @@ export default function OrderTracking() {
             </div>
 
             {/* Order Timeline */}
-            {order.status !== 'cancelled' ? (
+            {(order.status || 'pending') !== 'cancelled' ? (
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-xl font-semibold mb-6">Order Progress</h3>
                 
@@ -327,7 +365,16 @@ export default function OrderTracking() {
               <p className="text-sm text-gray-600 mb-3">
                 Make sure you're using the correct order number. Check your email confirmation for the exact number.
               </p>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+              <button 
+                onClick={() => navigate('/contact', {
+                  state: {
+                    category: 'order_issue',
+                    orderNumber: order.order_number || order.id,
+                    subject: `Cannot find order`,
+                    message: `I'm having trouble finding my order. I've tried using order number: ${trackingInput}\n\nPlease help me locate my order.`
+                  }
+                })}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium">
                 Contact Support
               </button>
             </div>
@@ -336,7 +383,16 @@ export default function OrderTracking() {
               <p className="text-sm text-gray-600 mb-3">
                 If your package hasn't arrived by the expected date, we're here to help.
               </p>
-              <button className="text-blue-600 hover:text-blue-800 text-sm font-medium">
+              <button 
+                onClick={() => navigate('/contact', {
+                  state: {
+                    category: 'delivery_problem',
+                    orderNumber: order?.order_number || order?.id || trackingInput,
+                    subject: `Delivery Issue with Order #${order?.order_number || order?.id || trackingInput}`,
+                    message: `I'm experiencing delivery issues with my order.\n\nOrder Number: ${order?.order_number || order?.id || trackingInput}\nExpected Delivery: ${order?.estimated_delivery_days ? `${order.estimated_delivery_days} days` : 'Not specified'}\nCurrent Status: ${order?.status_display || order?.status || 'Unknown'}\n\nIssue Details:`
+                  }
+                })}
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium">
                 Report Issue
               </button>
             </div>

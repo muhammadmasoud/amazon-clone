@@ -19,6 +19,7 @@ const ProductDetails = lazy( () => import("./pages/ProductDetails"));
 const OrderHistory = lazy(() => import("./pages/OrderHistory"));
 const OrderDetails = lazy(() => import("./pages/OrderDetails"));
 const OrderTracking = lazy(() => import("./pages/OrderTracking"));
+const Contact = lazy(() => import("./pages/Contact"));
 const Cartpage = lazy(() => import("./pages/Cartpage"));
 
 function App() {
@@ -78,6 +79,7 @@ function App() {
             <Route path="/product/:id" element={<ProductDetails />} />
             <Route path="/track" element={<OrderTracking />} />
             <Route path="/track/:orderNumber" element={<OrderTracking />} />
+            <Route path="/contact" element={<Contact />} />
             {/* Add your other routes here */}
           </Routes>
         </Suspense>

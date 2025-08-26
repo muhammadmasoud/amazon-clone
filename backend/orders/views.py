@@ -3,7 +3,7 @@ from django.db.models import Sum, Count, Q, F
 from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from datetime import datetime, timedelta
@@ -486,16 +486,21 @@ def update_order_status(request, order_id):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@permission_classes([AllowAny])
 def order_tracking(request, order_number):
     """
     Public order tracking by order number
     """
     try:
-        order = Order.objects.get(
-            Q(order_number=order_number) & 
-            (Q(user=request.user) if not request.user.is_staff else Q())
-        )
+        # For authenticated users, limit to their orders (unless staff)
+        if request.user.is_authenticated:
+            order = Order.objects.get(
+                Q(order_number=order_number) & 
+                (Q(user=request.user) if not request.user.is_staff else Q())
+            )
+        else:
+            # For public access, allow tracking by order number
+            order = Order.objects.get(order_number=order_number)
     except Order.DoesNotExist:
         return Response({'detail': 'Order not found'}, status=status.HTTP_404_NOT_FOUND)
     

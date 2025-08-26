@@ -49,7 +49,7 @@ function Navbar({ setShowCategories }) {
         {/* Logo */}
         <Link to="/" className="flex items-center">
           <img
-            src="public/vite.svg"
+            src="../public/vite.svg"
             alt="Amazon"
             className="h-8 object-contain"
           />
@@ -130,6 +130,13 @@ function Navbar({ setShowCategories }) {
                       onClick={() => setShowUserDropdown(false)}
                     >
                       Track Order
+                    </Link>
+                    <Link
+                      to="/contact"
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      onClick={() => setShowUserDropdown(false)}
+                    >
+                      Contact Support
                     </Link>
                     <button
                       onClick={handleLogout}
