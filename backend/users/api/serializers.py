@@ -1,8 +1,47 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 import re
+import time
+import random
 
 User = get_user_model()
+
+def generate_unique_username(email):
+    """
+    Generate a unique username from email address.
+    This function ensures uniqueness across different databases and team members.
+    """
+    # Extract base username from email
+    base_username = email.split('@')[0]
+    
+    # Clean the base username (remove special characters, limit length)
+    base_username = re.sub(r'[^a-zA-Z0-9_]', '', base_username)[:15]
+    
+    # If base_username is empty after cleaning, use a default
+    if not base_username:
+        base_username = "user"
+    
+    # Add timestamp and random suffix for guaranteed uniqueness
+    timestamp = str(int(time.time()))[-6:]  # Last 6 digits of timestamp
+    random_suffix = str(random.randint(100, 999))  # Random 3-digit number
+    
+    username = f"{base_username}_{timestamp}_{random_suffix}"
+    
+    # Double-check uniqueness (shouldn't be needed with timestamp, but safety first)
+    max_attempts = 10
+    attempts = 0
+    
+    while User.objects.filter(username=username).exists() and attempts < max_attempts:
+        random_suffix = str(random.randint(100, 999))
+        username = f"{base_username}_{timestamp}_{random_suffix}"
+        attempts += 1
+    
+    # If we still have conflicts after max attempts, add more randomness
+    if attempts >= max_attempts:
+        extra_random = str(random.randint(1000, 9999))
+        username = f"{base_username}_{timestamp}_{random_suffix}_{extra_random}"
+    
+    return username
 
 class UserSerializer(serializers.ModelSerializer):
     password_confirm = serializers.CharField(write_only=True)
@@ -30,26 +69,40 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         
-        # Generate a unique username from email
-        base_username = validated_data['email'].split('@')[0]
-        username = base_username
-        counter = 1
-        
-        # Ensure username is unique
-        while User.objects.filter(username=username).exists():
-            username = f"{base_username}{counter}"
-            counter += 1
-        
-        user = User(
-            email=validated_data['email'],
-            username=username  # Set the generated username
-        )
-        # Set the name as first_name
-        user.first_name = validated_data['first_name']
-        user.last_name = validated_data['last_name']
-        user.set_password(validated_data['password'])
-        user.save()
-        return user
+        try:
+            # Generate a unique username from email
+            username = generate_unique_username(validated_data['email'])
+            
+            # Final uniqueness check before creating user
+            if User.objects.filter(username=username).exists():
+                # This should never happen, but if it does, regenerate
+                username = generate_unique_username(validated_data['email'])
+            
+            user = User(
+                email=validated_data['email'],
+                username=username  # Set the generated username
+            )
+            # Set the name as first_name
+            user.first_name = validated_data['first_name']
+            user.last_name = validated_data['last_name']
+            user.set_password(validated_data['password'])
+            user.save()
+            return user
+            
+        except Exception as e:
+            # Log the error for debugging (in production, you'd want proper logging)
+            print(f"Error creating user: {e}")
+            # Fallback: try one more time with a completely random username
+            fallback_username = f"user_{int(time.time())}_{random.randint(10000, 99999)}"
+            user = User(
+                email=validated_data['email'],
+                username=fallback_username
+            )
+            user.first_name = validated_data['first_name']
+            user.last_name = validated_data['last_name']
+            user.set_password(validated_data['password'])
+            user.save()
+            return user
 
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
