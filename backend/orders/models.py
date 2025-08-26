@@ -30,6 +30,7 @@ class Order(models.Model):
         ('debit_card', 'Debit Card'),
         ('paypal', 'PayPal'),
         ('bank_transfer', 'Bank Transfer'),
+        ('stripe', 'Stripe'),
     ]
     
     # Unique order number for customer reference

@@ -276,21 +276,13 @@ export default function Cartpage() {
 
               {!showCheckout ? (
                 <button
-                  onClick={() => setShowCheckout(true)}
+                  onClick={() => navigate('/checkout')}
                   disabled={isCartEmpty || hasUnavailableItems || loading}
                   className="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
                 >
                   Proceed to Checkout
                 </button>
-              ) : (
-                <CheckoutForm
-                  form={checkoutForm}
-                  setForm={setCheckoutForm}
-                  onSubmit={handleCheckout}
-                  onBack={() => setShowCheckout(false)}
-                  isPlacingOrder={isPlacingOrder}
-                />
-              )}
+              ) : null}
             </div>
           </div>
         )}

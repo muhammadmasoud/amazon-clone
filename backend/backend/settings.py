@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'products',
     'users',
     'contact',
+    'payments',
     'corsheaders',
 ]
 
@@ -220,3 +221,8 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 # Frontend URL for email verification links
 FRONTEND_URL = 'http://localhost:5173'
+
+# Stripe Configuration
+STRIPE_PUBLISHABLE_KEY = 'pk_test_51S0V4yKX6jTnh1HUq5GKWEbvQJCiDzmRdABguQc3DphlpwkSj395xoJZtBFLMdjN2jvQpvNqULJcpT64ex3A9ad700749gltol'
+STRIPE_SECRET_KEY = 'sk_test_51S0V4yKX6jTnh1HUAvC7ECIqk0d77HXHtTIvAW4Fo9zvrjxiOOLOctg2Jk9euFxbf5LahWetmtBZUjK30YPuo9V2007kcBarfe'
+STRIPE_WEBHOOK_SECRET = ''  # Add webhook secret when you set up webhooks

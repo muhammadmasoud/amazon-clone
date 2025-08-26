@@ -11,8 +11,8 @@ const instance = axios.create({
 instance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
-        // Don't add token for login and signup endpoints
-        const publicPaths = ['/auth/login/', '/auth/signup/'];
+        // Don't add token for login, signup, and public endpoints
+        const publicPaths = ['/auth/login/', '/auth/signup/', '/payments/stripe-config/'];
         if (token && !publicPaths.includes(config.url)) {
             config.headers.Authorization = `Bearer ${token}`;
         }
