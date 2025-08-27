@@ -17,6 +17,7 @@ import {
   selectPromoCode
 } from '../redux/actions/reducers/cartReducer';
 import { fetchCart } from '../redux/actions/cartActions';
+import { clearCart } from '../redux/actions/cartActions';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -110,6 +111,10 @@ const CheckoutPage = () => {
 
       const response = await placeOrder(orderData);
       showNotification('Cash on Delivery order placed successfully!', 'success');
+      
+      // Clear cart from Redux store
+      await dispatch(clearCart());
+      
       navigate(`/orders/${response.data.order.id}`);
     } catch (error) {
       const errorMessage = error.response?.data?.detail || 
@@ -121,7 +126,10 @@ const CheckoutPage = () => {
     }
   };
 
-  const handleStripeSuccess = (paymentIntent, paymentId) => {
+  const handleStripeSuccess = async (paymentIntent, paymentId) => {
+    // Clear cart from Redux store after successful payment
+    await dispatch(clearCart());
+    
     navigate(`/payment-success/${paymentId}`, {
       state: {
         paymentIntent,

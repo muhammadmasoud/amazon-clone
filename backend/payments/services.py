@@ -80,6 +80,18 @@ class StripeService:
                 order.status = 'confirmed'
                 order.save()
                 
+                # Clear user's cart after successful payment
+                from cart.models import Cart
+                try:
+                    user_cart = Cart.objects.get(user=payment.user)
+                    user_cart.items.all().delete()
+                    user_cart.promo_code = None
+                    user_cart.discount_amount = 0
+                    user_cart.save()
+                    logger.info(f"Cart cleared for user {payment.user.id} after successful payment")
+                except Cart.DoesNotExist:
+                    logger.info(f"No cart found for user {payment.user.id}")
+                
                 return payment, True
             else:
                 payment.status = 'failed'

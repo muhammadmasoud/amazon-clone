@@ -133,6 +133,9 @@ export default function Cartpage() {
       const response = await placeOrder(orderData);
       showNotification('Order placed successfully!', 'success');
       
+      // Clear cart from Redux store
+      await dispatch(clearCart());
+      
       // Redirect to order details or order history
       navigate(`/orders/${response.data.order.id}`);
     } catch (error) {
