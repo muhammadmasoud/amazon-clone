@@ -80,16 +80,28 @@ class Command(BaseCommand):
         # Create sample products if they don't exist
         products = []
         
-        # List of (product_name, price) tuples
+        # List of (product_name, price) tuples - prices range from 0-2000$
         product_names = [
-            ('Laptop', 999.99),
-            ('Smartphone', 699.99),
-            ('Headphones', 199.99),
-            ('Tablet', 449.99),
-            ('Smartwatch', 299.99),
-            ('Camera', 799.99),
-            ('Keyboard', 99.99),
-            ('Mouse', 49.99),
+            ('Gaming Laptop Pro', 1899.99),
+            ('Professional Smartphone', 1299.99),
+            ('Wireless Noise-Canceling Headphones', 599.99),
+            ('High-End Tablet', 849.99),
+            ('Premium Smartwatch', 699.99),
+            ('Professional DSLR Camera', 1699.99),
+            ('Mechanical Gaming Keyboard', 299.99),
+            ('Wireless Gaming Mouse', 149.99),
+            ('4K Monitor 32"', 1299.99),
+            ('Bluetooth Speaker', 89.99),
+            ('Smart Home Assistant', 199.99),
+            ('Fitness Tracker', 129.99),
+            ('Wireless Earbuds Pro', 349.99),
+            ('External Hard Drive 2TB', 179.99),
+            ('Graphics Card RTX', 1599.99),
+            ('Memory Foam Pillow', 49.99),
+            ('Coffee Maker Premium', 259.99),
+            ('Air Fryer Deluxe', 199.99),
+            ('Electric Toothbrush', 79.99),
+            ('Portable Charger 20000mAh', 59.99),
         ]
         
         # Create each product

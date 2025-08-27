@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import { useSelector } from 'react-redux';
 import { useState, useEffect, useRef } from 'react';
 
-function Navbar({ setShowCategories }) {
+function Navbar() {
   const { user, logout, isAuthenticated } = useAuth();
   const cart = useSelector((state) => state.cart);
   const navigate = useNavigate();
@@ -54,16 +54,6 @@ function Navbar({ setShowCategories }) {
             className="h-16 object-contain brightness-0 invert"
           />
         </Link>
-        {/* Add Categories Toggle Button */}
-          {isHomePage && isAuthenticated && <button
-            onClick={() => setShowCategories(true)}
-            className="flex items-center text-sm text-white hover:text-gray-300 ml-4"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            All
-          </button>}
 
         {/* Search Bar */}
         {isAuthenticated && <div className="flex-1 max-w-2xl mx-4">

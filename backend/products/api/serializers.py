@@ -42,6 +42,13 @@ class ProductSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         if instance.category:
             representation['category'] = instance.category.name
+        
+        # Handle image URL - return full URL if image exists
+        if instance.image:
+            request = self.context.get('request')
+            if request:
+                representation['image'] = request.build_absolute_uri(instance.image.url)
+        
         return representation
 
 class ReviewSerializer(serializers.ModelSerializer):

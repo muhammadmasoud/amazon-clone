@@ -27,13 +27,12 @@ const PaymentPage = lazy(() => import("./pages/PaymentPage"));
 const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
 
 function App() {
-  const [showCategories, setShowCategories] = useState(false); 
   return (
     <BrowserRouter>
       <AuthProvider>
         <NotificationProvider>
           <ErrorMessage />
-          <Navbar setShowCategories={setShowCategories}/>
+          <Navbar />
           <Suspense
             fallback={
               <div className="min-h-screen flex items-center justify-center">
@@ -42,7 +41,7 @@ function App() {
             }
           >
             <Routes>
-              <Route path="/" element={<Home showCategories={showCategories} setShowCategories={setShowCategories}/>} />
+              <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
               <Route path="/signup-success" element={<SignupSuccess />} />

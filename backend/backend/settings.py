@@ -88,7 +88,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'amazon_clone',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'admin1234',
         'HOST': 'localhost',
         'PORT': '5432',
     }
