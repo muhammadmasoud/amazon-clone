@@ -120,7 +120,7 @@ function ProductDetails() {
             <hr className="my-4" />
 
             <div className="flex items-baseline space-x-1 mb-4">
-              <span className="text-sm text-gray-600">EGP</span>
+              <span className="text-sm text-gray-600">$</span>
               <span className="text-2xl font-bold text-gray-900">{product.unit_price}</span>
             </div>
 

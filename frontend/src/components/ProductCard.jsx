@@ -100,7 +100,7 @@ function ProductCard({ product }) {
 
         {/* Price Section - More prominent */}
         <div className="flex items-baseline space-x-1">
-          <span className="text-sm text-gray-600">EGP</span>
+          <span className="text-sm text-gray-600">$</span>
           <span className="text-xl font-bold text-gray-900">{product.unit_price}</span>
         </div>
         
