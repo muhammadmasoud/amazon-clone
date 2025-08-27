@@ -44,15 +44,23 @@ function Navbar() {
   };
 
   return (
-    <nav className="bg-[#131921] text-white px-4 py-2">
+    <nav className="bg-[#131921] text-white px-4 py-3 shadow-lg">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center">
-          <img
-            src="amazon.png"
-            alt="Amazon"
-            className="h-16 object-contain brightness-0 invert"
-          />
+        <Link to="/" className="flex items-center group">
+          <div className="flex items-center hover:scale-105 transition-transform duration-200">
+            <img
+              src="/amazon.png"
+              alt="Amazon Clone"
+              className="h-12 w-auto object-contain brightness-0 invert mr-2"
+            />
+            <div className="hidden sm:block">
+              <span className="text-xl font-bold text-white group-hover:text-[#febd69] transition-colors duration-200">
+                Amazon
+              </span>
+              <span className="text-xs text-gray-300 block leading-none">Clone</span>
+            </div>
+          </div>
         </Link>
 
         {/* Search Bar */}
@@ -63,9 +71,9 @@ function Navbar() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search Amazon"
-              className="w-full py-2 px-4 rounded-lg text-black focus:outline-none bg-white"
+              className="w-full py-3 px-4 rounded-lg text-black focus:outline-none bg-white focus:ring-2 focus:ring-[#febd69] transition-all duration-200"
             />
-            <button className="absolute right-0 top-0 h-full px-4 bg-[#febd69] hover:bg-[#f3a847] rounded-r-lg">
+            <button className="absolute right-0 top-0 h-full px-4 bg-[#febd69] hover:bg-[#f3a847] rounded-r-lg transition-colors duration-200">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 className="h-5 w-5"

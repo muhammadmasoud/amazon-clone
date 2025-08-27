@@ -59,12 +59,37 @@ const HeroSection = () => {
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroSlides.length) % heroSlides.length);
 
   const handleSlideClick = (slideId) => {
+    console.log('Button clicked! Slide ID:', slideId);
     switch(slideId) {
-      case 'electronics': navigate('/?category=Electronics'); break;
-      case 'fashion': navigate('/?category=Clothing'); break;
-      case 'home': navigate('/?category=Home'); break;
-      case 'gaming': navigate('/?category=Gaming'); break;
-      default: navigate('/'); break;
+      case 'mega-sale': 
+        // Shop All Deals - Show all products page with all categories
+        console.log('Navigating to all products');
+        navigate('/?view=products'); 
+        break;
+      case 'electronics': 
+        // Navigate to Electronics category (ID: 3)
+        console.log('Navigating to Electronics category');
+        navigate('/?category=3&view=products'); 
+        break;
+      case 'fashion': 
+        // Navigate to Clothing & Shoes category (ID: 12)
+        console.log('Navigating to Fashion category');
+        navigate('/?category=12&view=products'); 
+        break;
+      case 'home': 
+        // Navigate to Home & Kitchen category (ID: 5)
+        console.log('Navigating to Home category');
+        navigate('/?category=5&view=products'); 
+        break;
+      case 'gaming': 
+        // Navigate to Gaming category (ID: 4)
+        console.log('Navigating to Gaming category');
+        navigate('/?category=4&view=products'); 
+        break;
+      default: 
+        console.log('Navigating to home');
+        navigate('/'); 
+        break;
     }
   };
 
@@ -75,16 +100,19 @@ const HeroSection = () => {
           <div
             key={slide.id}
             className={`absolute inset-0 transition-all duration-1000 ease-out ${
-              index === currentSlide ? 'opacity-100 scale-100' : 'opacity-0 scale-105'
+              index === currentSlide ? 'opacity-100 scale-100 z-10' : 'opacity-0 scale-105 z-0 pointer-events-none'
             }`}
           >
             <div
               className="absolute inset-0 bg-cover bg-center cursor-pointer"
               style={{ backgroundImage: `url(${slide.image})` }}
-              onClick={() => handleSlideClick(slide.id)}
+              onClick={() => {
+                console.log('Background clicked for slide:', slide.id, 'current slide index:', currentSlide);
+                handleSlideClick(slide.id);
+              }}
             />
             <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgColor} opacity-75`} />
-            <div className="relative z-10 flex items-center h-full px-8 md:px-16">
+            <div className="relative z-20 flex items-center h-full px-8 md:px-16">
               <div className="max-w-2xl text-white">
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-black mb-6 leading-tight">
                   {slide.title}
@@ -95,6 +123,7 @@ const HeroSection = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    console.log('Button clicked for slide:', slide.id, 'current slide index:', currentSlide);
                     handleSlideClick(slide.id);
                   }}
                   className="group relative px-8 py-4 bg-white text-gray-900 font-bold text-lg rounded-full 
