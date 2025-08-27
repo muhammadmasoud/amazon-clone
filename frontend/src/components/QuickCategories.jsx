@@ -64,16 +64,7 @@ const QuickCategories = () => {
   }, []);
 
   const handleCategoryClick = (categoryId) => {
-    // Prevent double clicks
-    if (handleCategoryClick.isNavigating) return;
-    handleCategoryClick.isNavigating = true;
-    
     navigate(`/?category=${categoryId}&view=products`);
-    
-    // Reset the flag after a short delay
-    setTimeout(() => {
-      handleCategoryClick.isNavigating = false;
-    }, 500);
   };
 
   if (isLoading) {

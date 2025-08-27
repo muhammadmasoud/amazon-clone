@@ -5,6 +5,7 @@ import { NotificationProvider } from "./context/NotificationContext.jsx";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import ErrorMessage from "./components/ErrorMessage";
+import ScrollToTop from "./components/ScrollToTop";
 import "./App.css";
 import ProtectedRoute from "./components/ProtectedRoute"; 
 
@@ -30,6 +31,7 @@ const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
 function App() {
   return (
     <BrowserRouter>
+      <ScrollToTop />
       <AuthProvider>
         <NotificationProvider>
           <div className="min-h-screen flex flex-col">
