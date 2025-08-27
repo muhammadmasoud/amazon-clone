@@ -4,12 +4,12 @@ from rest_framework import status
 from rest_framework.pagination import PageNumberPagination
 from ..models import Product,Category,Review
 from .serializers import ProductSerializer,CategorySerializer,ReviewSerializer
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.db import models
 from django.db.models import Min, Max
 
 @api_view(['GET', 'POST'])
-#@permission_classes([AllowAny])
+@permission_classes([AllowAny])
 def view_add_product(request):
     if request.method == 'GET':
         products = Product.objects.all()
@@ -83,7 +83,7 @@ def view_add_product(request):
 
 
 @api_view(['GET', 'PUT', 'PATCH', 'DELETE'])
-#@permission_classes([AllowAny])
+@permission_classes([AllowAny])
 def product_by_id(request, id):
     try:
         product = Product.objects.get(pk=id)
@@ -107,7 +107,7 @@ def product_by_id(request, id):
         return Response(data=edited_product.data, status=status.HTTP_200_OK)
     
 @api_view(['GET'])
-#@permission_classes([AllowAny])
+@permission_classes([AllowAny])
 def category_list(request):
     """
     Simple endpoint to retrieve all categories.
@@ -117,7 +117,7 @@ def category_list(request):
     return Response(serializer.data , status=status.HTTP_200_OK)
 
 @api_view(['GET'])
-#@permission_classes([AllowAny])
+@permission_classes([AllowAny])
 def price_range(request):
     """
     Endpoint to get the minimum and maximum prices of all products.
@@ -137,6 +137,7 @@ def price_range(request):
     return Response(price_stats, status=status.HTTP_200_OK)
 
 @api_view(['GET', 'POST'])
+@permission_classes([AllowAny])
 def product_reviews_list(request, product_id):
     """
     Handles:

@@ -74,161 +74,157 @@ function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {isAuthenticated ? (
-        <div className="flex">
-          {/* Left Sidebar - Filters */}
-          <div className="hidden lg:block lg:w-64 bg-white">
-            <FilterSidebar
-              onCategoryChange={handleCategorySelect}
-              onPriceChange={handlePriceChange}
-              onRatingChange={handleRatingChange}
-              selectedCategory={selectedCategory}
-              minPrice={minPrice}
-              maxPrice={maxPrice}
-              minRating={minRating}
-            />
-          </div>
+      <div className="flex">
+        {/* Left Sidebar - Filters - Always show */}
+        <div className="hidden lg:block lg:w-64 bg-white">
+          <FilterSidebar
+            onCategoryChange={handleCategorySelect}
+            onPriceChange={handlePriceChange}
+            onRatingChange={handleRatingChange}
+            selectedCategory={selectedCategory}
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            minRating={minRating}
+          />
+        </div>
 
-          {/* Main Content Area */}
-          <div className="flex-1 lg:ml-0">
-            <div className="max-w-7xl mx-auto px-4 py-6">
-              {/* Results Header */}
-              <div className="mb-6">
-                {/* Results count and filters applied */}
-                <div className="text-sm text-gray-600 mb-2">
-                  {!isLoading && `${totalCount} results`}
-                  {selectedCategory && (
-                    <span className="ml-2">
-                      for "<span className="font-medium">{selectedCategoryName}</span>"
+        {/* Main Content Area - Always show */}
+        <div className="flex-1 lg:ml-0">
+          <div className="max-w-7xl mx-auto px-4 py-6">
+            {/* Not authenticated banner */}
+            {!isAuthenticated && (
+              <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md mb-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                    </svg>
+                    <span className="font-medium">
+                      Browse our products! Sign in to add items to your cart and make purchases.
                     </span>
-                  )}
-                  {searchQuery && (
-                    <span className="ml-2">
-                      for "<span className="font-medium">{searchQuery}</span>"
-                    </span>
-                  )}
-                </div>
-
-                {/* Active filters display */}
-                {(selectedCategory || minPrice !== null || maxPrice !== null || minRating !== null) && (
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {selectedCategory && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                        Category: {selectedCategoryName}
-                        <button
-                          onClick={() => handleCategorySelect(null)}
-                          className="ml-2 text-blue-600 hover:text-blue-800"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    )}
-                    {(minPrice !== null || maxPrice !== null) && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
-                        Price: ${minPrice || 0} - ${maxPrice || '∞'}
-                        <button
-                          onClick={() => handlePriceChange(null, null)}
-                          className="ml-2 text-orange-600 hover:text-orange-800"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    )}
-                    {minRating !== null && (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
-                        Rating: {minRating}+ stars
-                        <button
-                          onClick={() => handleRatingChange(null)}
-                          className="ml-2 text-yellow-600 hover:text-yellow-800"
-                        >
-                          ×
-                        </button>
-                      </span>
-                    )}
                   </div>
+                  <div className="flex space-x-2">
+                    <a
+                      href="/login"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium"
+                    >
+                      Sign In
+                    </a>
+                    <a
+                      href="/signup"
+                      className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium"
+                    >
+                      Sign Up
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Results Header */}
+            <div className="mb-6">
+              {/* Results count and filters applied */}
+              <div className="text-sm text-gray-600 mb-2">
+                {!isLoading && `${totalCount} results`}
+                {selectedCategory && (
+                  <span className="ml-2">
+                    for "<span className="font-medium">{selectedCategoryName}</span>"
+                  </span>
                 )}
-
-                <h1 className="text-xl font-bold text-gray-900">
-                  Results
-                </h1>
+                {searchQuery && (
+                  <span className="ml-2">
+                    for "<span className="font-medium">{searchQuery}</span>"
+                  </span>
+                )}
               </div>
 
-              {/* Products Grid */}
-              {error ? (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-center">
-                  <p>{error}</p>
-                  <button 
-                    onClick={() => window.location.reload()} 
-                    className="mt-2 bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-md text-sm"
-                  >
-                    Try Again
-                  </button>
-                </div>
-              ) : isLoading ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {[...Array(12)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="bg-gray-200 aspect-square rounded mb-2"></div>
-                      <div className="bg-gray-200 h-4 rounded mb-1"></div>
-                      <div className="bg-gray-200 h-4 rounded w-3/4"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                  {products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
+              {/* Active filters display */}
+              {(selectedCategory || minPrice !== null || maxPrice !== null || minRating !== null) && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {selectedCategory && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                      Category: {selectedCategoryName}
+                      <button
+                        onClick={() => handleCategorySelect(null)}
+                        className="ml-2 text-blue-600 hover:text-blue-800"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {(minPrice !== null || maxPrice !== null) && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-orange-100 text-orange-800">
+                      Price: ${minPrice || 0} - ${maxPrice || '∞'}
+                      <button
+                        onClick={() => handlePriceChange(null, null)}
+                        className="ml-2 text-orange-600 hover:text-orange-800"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
+                  {minRating !== null && (
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-yellow-100 text-yellow-800">
+                      Rating: {minRating}+ stars
+                      <button
+                        onClick={() => handleRatingChange(null)}
+                        className="ml-2 text-yellow-600 hover:text-yellow-800"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  )}
                 </div>
               )}
 
-              {/* Pagination */}
-              {!isLoading && !error && products.length > 0 && (
-                <div className="mt-8">
-                  <Pagination
-                    currentPage={currentPage}
-                    totalCount={totalCount}
-                    itemsPerPage={10}
-                    onPageChange={handlePageChange}
-                  />
-                </div>
-              )}
+              <h1 className="text-xl font-bold text-gray-900">
+                Results
+              </h1>
             </div>
-          </div>
-        </div>
-      ) : (
-        /* Not authenticated - Show welcome message */
-        <div className="max-w-7xl mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Welcome to Amazon Clone
-            </h1>
-            <p className="text-xl text-gray-600 mb-8">
-              Your one-stop shop for everything you need
-            </p>
-            <div className="bg-white p-6 rounded-lg shadow-md max-w-md mx-auto">
-              <h2 className="text-2xl font-semibold mb-4">Get Started</h2>
-              <p className="text-gray-600 mb-6">
-                Sign in to your account or create a new one to start shopping.
-              </p>
-              <div className="space-y-3">
-                <a
-                  href="/login"
-                  className="block w-full bg-[#f0c14b] border border-[#a88734] rounded-md py-2 px-4 text-sm font-medium text-gray-900 hover:bg-[#f4d078] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500"
+
+            {/* Products Grid */}
+            {error ? (
+              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-center">
+                <p>{error}</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-2 bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-4 rounded-md text-sm"
                 >
-                  Sign In
-                </a>
-                <a
-                  href="/signup"
-                  className="block w-full bg-gray-800 text-white rounded-md py-2 px-4 text-sm font-medium hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
-                >
-                  Create Account
-                </a>
+                  Try Again
+                </button>
               </div>
-            </div>
+            ) : isLoading ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {[...Array(12)].map((_, i) => (
+                  <div key={i} className="animate-pulse">
+                    <div className="bg-gray-200 aspect-square rounded mb-2"></div>
+                    <div className="bg-gray-200 h-4 rounded mb-1"></div>
+                    <div className="bg-gray-200 h-4 rounded w-3/4"></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+
+            {/* Pagination */}
+            {!isLoading && !error && products.length > 0 && (
+              <div className="mt-8">
+                <Pagination
+                  currentPage={currentPage}
+                  totalCount={totalCount}
+                  itemsPerPage={10}
+                  onPageChange={handlePageChange}
+                />
+              </div>
+            )}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }

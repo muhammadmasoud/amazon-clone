@@ -8,6 +8,8 @@ function ProductCard({ product }) {
   const dispatch = useDispatch();
   const { isAuthenticated } = useAuth();
   const [isAdding, setIsAdding] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [showError, setShowError] = useState(false);
 
   const handleAddToCart = async (e) => {
     e.stopPropagation(); // Prevents the Link navigation
@@ -24,32 +26,29 @@ function ProductCard({ product }) {
 
     try {
       setIsAdding(true);
+      setShowSuccess(false);
+      setShowError(false);
+      
       await dispatch(addToCart(product.id, 1));
-      // Show success feedback with a temporary message
-      const button = e.target;
-      const originalText = button.textContent;
-      button.textContent = '✓ Added!';
-      button.style.backgroundColor = '#10B981';
+      
+      // Show success feedback
+      setIsAdding(false);
+      setShowSuccess(true);
       
       setTimeout(() => {
-        button.textContent = originalText;
-        button.style.backgroundColor = '';
+        setShowSuccess(false);
       }, 2000);
       
     } catch (error) {
       console.error('Failed to add to cart:', error);
-      // Show error message briefly
-      const button = e.target;
-      const originalText = button.textContent;
-      button.textContent = 'Error - Try Again';
-      button.style.backgroundColor = '#EF4444';
+      
+      // Show error feedback
+      setIsAdding(false);
+      setShowError(true);
       
       setTimeout(() => {
-        button.textContent = originalText;
-        button.style.backgroundColor = '';
+        setShowError(false);
       }, 2000);
-    } finally {
-      setIsAdding(false);
     }
   };
   return (
@@ -123,10 +122,14 @@ function ProductCard({ product }) {
         <div className="mt-auto pt-3">
           <button
             onClick={handleAddToCart} 
-            disabled={product.stock === 0 || isAdding}
+            disabled={product.stock === 0 || isAdding || showSuccess}
             className={`w-full font-medium py-2 px-4 rounded-md transition-colors duration-200 text-sm border focus:outline-none focus:ring-2 focus:ring-offset-1 ${
               product.stock === 0 
                 ? 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed' 
+                : showSuccess
+                ? 'bg-green-500 text-white border-green-600 cursor-not-allowed'
+                : showError
+                ? 'bg-red-500 text-white border-red-600 cursor-not-allowed'
                 : isAdding
                 ? 'bg-gray-400 text-gray-600 border-gray-500 cursor-not-allowed'
                 : 'bg-[#febd69] hover:bg-[#f3a847] text-gray-900 focus:ring-yellow-500'
@@ -134,6 +137,10 @@ function ProductCard({ product }) {
           >
             {product.stock === 0 
               ? 'Out of Stock' 
+              : showSuccess
+              ? '✓ Added!'
+              : showError
+              ? 'Error - Try Again'
               : isAdding 
               ? 'Adding...' 
               : 'Add to Cart'
