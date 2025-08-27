@@ -1,6 +1,7 @@
 import { Suspense, lazy, useState} from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
+import { NotificationProvider } from "./context/NotificationContext.jsx";
 import Navbar from "./components/Navbar";
 import ErrorMessage from "./components/ErrorMessage";
 import "./App.css";
@@ -30,15 +31,16 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <ErrorMessage />
-        <Navbar setShowCategories={setShowCategories}/>
-        <Suspense
-          fallback={
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-            </div>
-          }
-        >
+        <NotificationProvider>
+          <ErrorMessage />
+          <Navbar setShowCategories={setShowCategories}/>
+          <Suspense
+            fallback={
+              <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+              </div>
+            }
+          >
             <Routes>
               <Route path="/" element={<Home showCategories={showCategories} setShowCategories={setShowCategories}/>} />
               <Route path="/login" element={<Login />} />
@@ -110,6 +112,7 @@ function App() {
               {/* Add your other routes here */}
             </Routes>
           </Suspense>
+        </NotificationProvider>
       </AuthProvider>
     </BrowserRouter>
   );

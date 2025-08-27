@@ -47,16 +47,16 @@ class PlaceOrderView(APIView):
         validated_data = serializer.validated_data
         cart_items = validated_data['cart']
         
-        # Check if user already has a pending order from the last 5 minutes (prevent duplicates)
+        # Check if user already has a pending order from the last 30 seconds (prevent duplicates)
         recent_order = Order.objects.filter(
             user=user, 
-            created_at__gte=timezone.now() - timedelta(minutes=5),
+            created_at__gte=timezone.now() - timedelta(seconds=30),
             status='pending'
         ).first()
         
         if recent_order:
             return Response({
-                'detail': 'You have a recent pending order. Please wait a few minutes before placing another order.',
+                'detail': 'You have a recent pending order. Please wait a moment before placing another order.',
                 'order_id': recent_order.id
             }, status=status.HTTP_400_BAD_REQUEST)
 
@@ -85,7 +85,12 @@ class PlaceOrderView(APIView):
             order_data['promo_code'] = user_cart.promo_code
             order_data['discount_amount'] = user_cart.discount_amount
 
-        order = Order.objects.create(**order_data)
+        try:
+            order = Order.objects.create(**order_data)
+        except Exception as e:
+            return Response({
+                'detail': f'Failed to create order: {str(e)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
 
         # Calculate totals
         subtotal = Decimal('0')

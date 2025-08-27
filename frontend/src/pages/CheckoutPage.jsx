@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { useAuth } from '../context/AuthContext';
+import { useNotification } from '../context/NotificationContext.jsx';
 import StripeCheckout from '../components/payment/StripeCheckout';
 import { placeOrder } from '../api/orders';
 import { 
@@ -21,6 +22,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { isAuthenticated, user } = useAuth();
+  const { showNotification } = useNotification();
   
   // Cart state from Redux
   const cartItems = useSelector(selectCartItems);
@@ -81,6 +83,20 @@ const CheckoutPage = () => {
   const handleCashOnDelivery = async () => {
     if (!validateShippingForm()) return;
 
+    // Check if cart has items
+    if (!cartItems || cartItems.length === 0) {
+      showNotification('Your cart is empty. Please add items to cart first.', 'error');
+      navigate('/cart');
+      return;
+    }
+
+    // Check if user is authenticated
+    if (!isAuthenticated || !user) {
+      showNotification('Please log in to place an order.', 'error');
+      navigate('/login');
+      return;
+    }
+
     setIsPlacingOrder(true);
     try {
       const orderData = {
@@ -93,11 +109,13 @@ const CheckoutPage = () => {
       };
 
       const response = await placeOrder(orderData);
-      alert('Cash on Delivery order placed successfully!');
+      showNotification('Cash on Delivery order placed successfully!', 'success');
       navigate(`/orders/${response.data.order.id}`);
     } catch (error) {
-      console.error('Error placing order:', error);
-      alert('Failed to place order. Please try again.');
+      const errorMessage = error.response?.data?.detail || 
+                          error.response?.data?.message || 
+                          'Failed to place order. Please try again.';
+      showNotification(errorMessage, 'error');
     } finally {
       setIsPlacingOrder(false);
     }
