@@ -54,7 +54,8 @@ class UserSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = [ 'email', 'first_name','last_name', 'mobile', 'address']
+        fields = [ 'email', 'first_name','last_name', 'mobile', 'address', 'is_staff', 'is_superuser']
+        read_only_fields = ['is_staff', 'is_superuser']
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)

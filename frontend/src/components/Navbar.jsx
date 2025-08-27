@@ -147,6 +147,20 @@ function Navbar() {
                 <p className="font-bold">& Orders</p>
               </Link>
 
+              {/* Admin Panel Button - Only show for admin users */}
+              {(user?.is_staff || user?.is_superuser) && (
+                <a
+                  href="http://localhost:8000/admin/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm hover:text-gray-300 transition-colors duration-200"
+                  title="Admin Panel"
+                >
+                  <p className="text-gray-300">Admin</p>
+                  <p className="font-bold">Panel</p>
+                </a>
+              )}
+
               <Link to="/cart" className="relative">
                 <span className="absolute -top-2 -right-2 bg-[#f08804] text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
                   {cart.cart_count || cart.total_items || 0}
