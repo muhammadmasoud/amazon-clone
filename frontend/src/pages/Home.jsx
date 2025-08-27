@@ -335,32 +335,52 @@ function Home() {
 
   // Render Amazon-style home page
   return (
-    <div className="bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-6 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/30 relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-indigo-400/5 rounded-full blur-3xl"></div>
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-gradient-to-tr from-purple-400/5 to-pink-400/5 rounded-full blur-3xl"></div>
+      <div className="absolute top-1/3 left-1/4 w-64 h-64 bg-gradient-to-r from-cyan-400/3 to-blue-400/3 rounded-full blur-2xl"></div>
+      
+      <div className="relative z-10 max-w-7xl mx-auto px-4 py-8 space-y-12">
         {/* Not authenticated banner */}
         {!isAuthenticated && (
-          <div className="bg-blue-50 border border-blue-200 text-blue-800 px-4 py-3 rounded-md">
-            <div className="flex items-center justify-between">
+          <div className="relative bg-gradient-to-r from-blue-500/90 to-indigo-600/90 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl border border-white/20 overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-white/10 to-white/5 rounded-full blur-2xl"></div>
+            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-white/5 to-white/10 rounded-full blur-xl"></div>
+            
+            <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center">
-                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                </svg>
-                <span className="font-medium">
-                  Welcome to our store! Sign in to enjoy personalized shopping and exclusive deals.
-                </span>
+                <div className="bg-white/20 p-2 rounded-xl mr-4">
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div>
+                  <span className="font-bold text-lg">Welcome to our store!</span>
+                  <p className="text-blue-100 text-sm">Sign in to enjoy personalized shopping and exclusive deals.</p>
+                </div>
               </div>
-              <div className="flex space-x-2">
+              <div className="flex space-x-3">
                 <a
                   href="/login"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm font-medium"
+                  className="group bg-white text-blue-600 px-6 py-2.5 rounded-xl text-sm font-bold 
+                           hover:bg-blue-50 transition-all duration-300 hover:scale-105 hover:shadow-xl
+                           relative overflow-hidden"
                 >
-                  Sign In
+                  <span className="relative z-10">Sign In</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-100/50 to-transparent 
+                                -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                 </a>
                 <a
                   href="/signup"
-                  className="bg-gray-600 hover:bg-gray-700 text-white px-3 py-1 rounded text-sm font-medium"
+                  className="group bg-white/20 backdrop-blur-md text-white px-6 py-2.5 rounded-xl text-sm font-bold 
+                           hover:bg-white/30 transition-all duration-300 hover:scale-105 hover:shadow-xl
+                           border border-white/30 hover:border-white/50 relative overflow-hidden"
                 >
-                  Sign Up
+                  <span className="relative z-10">Sign Up</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent 
+                                -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
                 </a>
               </div>
             </div>
@@ -377,25 +397,28 @@ function Home() {
         <DealsSection />
 
         {/* Featured Products */}
-        <FeaturedProducts title="Featured Products" limit={8} />
+        <FeaturedProducts title="⭐ Featured Products" limit={8} />
 
         {/* Category Blocks */}
         {isLoadingHome ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="bg-white p-6 rounded-lg shadow-sm border border-gray-200 animate-pulse">
-                <div className="h-6 bg-gray-200 rounded mb-4"></div>
-                <div className="grid grid-cols-2 gap-2 mb-4">
+              <div key={i} className="bg-gradient-to-br from-white/80 to-gray-50/80 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/30 animate-pulse">
+                <div className="flex items-center mb-4">
+                  <div className="bg-gradient-to-r from-gray-200 to-gray-300 w-1.5 h-6 rounded-full mr-3"></div>
+                  <div className="h-6 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl w-32"></div>
+                </div>
+                <div className="grid grid-cols-2 gap-3 mb-6">
                   {[...Array(4)].map((_, j) => (
-                    <div key={j} className="aspect-square bg-gray-200 rounded"></div>
+                    <div key={j} className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl"></div>
                   ))}
                 </div>
-                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-12 bg-gradient-to-r from-gray-200 to-gray-300 rounded-xl"></div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {categories.slice(0, 6).map((category) => (
               <CategoryBlock
                 key={category.id}
@@ -410,7 +433,7 @@ function Home() {
         {categories.slice(0, 3).map((category) => (
           <FeaturedProducts
             key={`featured-${category.id}`}
-            title={`Best in ${category.name}`}
+            title={`🏆 Best in ${category.name}`}
             categoryId={category.id}
             limit={6}
           />

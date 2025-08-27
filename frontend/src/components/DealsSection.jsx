@@ -36,19 +36,28 @@ const DealsSection = () => {
 
   if (isLoading) {
     return (
-      <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-lg shadow-sm border border-red-200">
-        <div className="flex justify-between items-center mb-6">
-          <div className="h-8 bg-red-200 rounded w-48 animate-pulse"></div>
-          <div className="h-8 bg-red-200 rounded w-24 animate-pulse"></div>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="animate-pulse">
-              <div className="bg-red-200 aspect-square rounded mb-2"></div>
-              <div className="bg-red-200 h-4 rounded mb-1"></div>
-              <div className="bg-red-200 h-4 rounded w-3/4"></div>
+      <div className="relative bg-gradient-to-br from-red-500 via-orange-500 to-pink-500 p-8 rounded-2xl shadow-2xl overflow-hidden">
+        <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-red-400/20 to-pink-400/20 rounded-full blur-2xl animate-pulse"></div>
+        
+        <div className="relative z-10">
+          <div className="flex justify-between items-center mb-8">
+            <div className="flex items-center">
+              <div className="bg-white/20 backdrop-blur-md w-2 h-10 rounded-full mr-4 animate-pulse"></div>
+              <div className="h-10 bg-white/20 backdrop-blur-md rounded-2xl w-64 animate-pulse"></div>
             </div>
-          ))}
+            <div className="h-12 bg-white/20 backdrop-blur-md rounded-2xl w-32 animate-pulse"></div>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white/80 backdrop-blur-md rounded-2xl p-4 animate-pulse">
+                <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl mb-4"></div>
+                <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full mb-2"></div>
+                <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-3/4"></div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -59,54 +68,80 @@ const DealsSection = () => {
   }
 
   return (
-    <div className="bg-gradient-to-r from-red-50 to-orange-50 p-6 rounded-lg shadow-sm border border-red-200">
-      <div className="flex justify-between items-center mb-6">
-        <div className="flex items-center">
-          <h2 className="text-2xl font-bold text-red-600 mr-2">🔥 Today's Deals</h2>
-          <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full animate-pulse">
-            LIMITED TIME
-          </span>
-        </div>
-        <button
-          onClick={handleViewAllDeals}
-          className="text-red-600 hover:text-red-800 font-medium hover:underline"
-        >
-          View all deals →
-        </button>
-      </div>
+    <div className="relative bg-gradient-to-br from-red-500 via-orange-500 to-pink-500 p-8 rounded-2xl shadow-2xl overflow-hidden">
+      {/* Animated background elements */}
+      <div className="absolute top-0 right-0 w-40 h-40 bg-gradient-to-br from-yellow-400/20 to-orange-400/20 rounded-full blur-3xl animate-pulse"></div>
+      <div className="absolute bottom-0 left-0 w-32 h-32 bg-gradient-to-tr from-red-400/20 to-pink-400/20 rounded-full blur-2xl animate-pulse"></div>
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-gradient-to-r from-white/5 to-white/10 rounded-full blur-3xl"></div>
       
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {deals.map((deal) => (
-          <div key={deal.id} className="bg-white rounded-lg p-3 shadow-sm hover:shadow-md transition-shadow duration-200">
-            <div className="relative">
-              <div className="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full z-10">
-                -{deal.discountPercent}%
-              </div>
-              <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden mb-3">
-                <img
-                  src={deal.image || '/placeholder-product.svg'}
-                  alt={deal.title}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-200 cursor-pointer"
-                  onClick={() => navigate(`/product/${deal.id}`)}
-                />
-              </div>
-            </div>
-            
-            <h3 className="text-sm font-medium text-gray-900 line-clamp-2 mb-2 hover:text-blue-600 cursor-pointer"
-                onClick={() => navigate(`/product/${deal.id}`)}>
-              {deal.title}
-            </h3>
-            
-            <div className="flex items-center space-x-2 mb-2">
-              <span className="text-lg font-bold text-red-600">${deal.unit_price}</span>
-              <span className="text-sm text-gray-500 line-through">${deal.originalPrice}</span>
-            </div>
-            
-            <div className="text-xs text-gray-500">
-              Save ${(deal.originalPrice - deal.unit_price).toFixed(2)}
+      <div className="relative z-10">
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center">
+            <div className="bg-white/20 backdrop-blur-md w-2 h-10 rounded-full mr-4"></div>
+            <div className="flex items-center space-x-3">
+              <h2 className="text-3xl md:text-4xl font-black text-white drop-shadow-lg">
+                🔥 Today's Deals
+              </h2>
+              <span className="bg-white text-red-600 text-sm font-black px-4 py-2 rounded-full 
+                           shadow-lg animate-bounce transform hover:scale-110 transition-transform duration-300">
+                LIMITED TIME
+              </span>
             </div>
           </div>
-        ))}
+          <button
+            onClick={handleViewAllDeals}
+            className="group bg-white/20 backdrop-blur-md text-white font-bold px-6 py-3 rounded-2xl 
+                     hover:bg-white/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl
+                     border border-white/30 hover:border-white/50"
+          >
+            <span className="group-hover:mr-2 transition-all duration-300">View all deals</span>
+            <span className="inline-block group-hover:translate-x-1 transition-transform duration-300">→</span>
+          </button>
+        </div>
+        
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
+          {deals.map((deal) => (
+            <div key={deal.id} className="group bg-white/95 backdrop-blur-md rounded-2xl p-4 shadow-xl 
+                                       hover:shadow-2xl transition-all duration-500 hover:-translate-y-3 hover:scale-105
+                                       border border-white/50 hover:border-white/80 active:scale-95">
+              <div className="relative overflow-hidden rounded-xl mb-4">
+                <div className="absolute top-3 left-3 bg-gradient-to-r from-red-600 to-pink-600 text-white text-xs font-black px-3 py-1.5 
+                              rounded-full z-10 shadow-lg animate-pulse">
+                  -{deal.discountPercent}%
+                </div>
+                <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden group-hover:scale-110 transition-transform duration-500">
+                  <img
+                    src={deal.image || '/placeholder-product.svg'}
+                    alt={deal.title}
+                    className="w-full h-full object-cover cursor-pointer transition-transform duration-500"
+                    onClick={() => navigate(`/product/${deal.id}`)}
+                  />
+                </div>
+                {/* Shimmer effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent 
+                              -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out rounded-xl"></div>
+              </div>
+              
+              <h3 className="text-sm font-bold text-gray-900 line-clamp-2 mb-3 hover:text-transparent 
+                           hover:bg-gradient-to-r hover:from-red-600 hover:to-pink-600 hover:bg-clip-text 
+                           cursor-pointer transition-all duration-300"
+                  onClick={() => navigate(`/product/${deal.id}`)}>
+                {deal.title}
+              </h3>
+              
+              <div className="flex items-center space-x-2 mb-2">
+                <span className="text-lg font-black bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent">
+                  ${deal.unit_price}
+                </span>
+                <span className="text-sm text-gray-500 line-through font-medium">${deal.originalPrice}</span>
+              </div>
+              
+              <div className="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full inline-block">
+                Save ${(deal.originalPrice - deal.unit_price).toFixed(2)}
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
