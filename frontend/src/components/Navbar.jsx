@@ -32,7 +32,7 @@ function Navbar() {
     e.preventDefault();
     if (searchTerm.trim()) {
       // Navigate to homepage with search query
-      navigate(`/?search=${encodeURIComponent(searchTerm.trim())}`);
+      navigate(`/?search=${encodeURIComponent(searchTerm.trim())}&view=products`);
       setSearchTerm(''); // Clear search input
     }
   };
@@ -49,7 +49,7 @@ function Navbar() {
         {/* Logo */}
         <Link to="/" className="flex items-center">
           <img
-            src="../public/amazon.png"
+            src="amazon.png"
             alt="Amazon"
             className="h-16 object-contain brightness-0 invert"
           />

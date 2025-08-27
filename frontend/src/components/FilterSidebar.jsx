@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getCategories, getPriceRange } from '../api/products';
+import './FilterSidebar.css';
 
 function FilterSidebar({ onCategoryChange, onPriceChange, onRatingChange, selectedCategory, minPrice, maxPrice, minRating }) {
   const [categories, setCategories] = useState([]);
@@ -96,7 +97,7 @@ function FilterSidebar({ onCategoryChange, onPriceChange, onRatingChange, select
                   key={category.id}
                   onClick={() => onCategoryChange(category.id, category.name)}
                   className={`w-full text-left py-2 px-3 rounded-md text-sm ${
-                    selectedCategory === category.id
+                    selectedCategory && parseInt(selectedCategory) === category.id
                       ? 'bg-blue-50 text-blue-700 border border-blue-200'
                       : 'hover:bg-gray-50 text-gray-700'
                   }`}
@@ -260,49 +261,6 @@ function FilterSidebar({ onCategoryChange, onPriceChange, onRatingChange, select
           </div>
         </div>
       </div>
-
-      {/* Custom CSS for range slider */}
-      <style jsx>{`
-        .range-slider-min::-webkit-slider-thumb,
-        .range-slider-max::-webkit-slider-thumb {
-          appearance: none;
-          height: 18px;
-          width: 18px;
-          background: #f97316;
-          border-radius: 50%;
-          cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-          pointer-events: all;
-        }
-        
-        .range-slider-min::-moz-range-thumb,
-        .range-slider-max::-moz-range-thumb {
-          height: 18px;
-          width: 18px;
-          background: #f97316;
-          border-radius: 50%;
-          cursor: pointer;
-          border: 2px solid white;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-          pointer-events: all;
-        }
-        
-        .range-slider-min,
-        .range-slider-max {
-          pointer-events: none;
-        }
-        
-        .range-slider-min::-webkit-slider-thumb,
-        .range-slider-max::-webkit-slider-thumb {
-          pointer-events: all;
-        }
-        
-        .range-slider-min::-moz-range-thumb,
-        .range-slider-max::-moz-range-thumb {
-          pointer-events: all;
-        }
-      `}</style>
     </div>
   );
 }

@@ -25,8 +25,8 @@ def view_add_product(request):
             try:
                 # Convert the string parameter to an integer
                 category_id_int = int(category_id)
-                # Filter using the correct database column name
-                products = products.filter(category_id=category_id_int)
+                # Filter using the category foreign key
+                products = products.filter(category=category_id_int)
             except ValueError:
                 return Response({"error": "Invalid category ID. Must be an integer."}, status=status.HTTP_400_BAD_REQUEST)
         

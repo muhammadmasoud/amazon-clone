@@ -10,6 +10,7 @@ export const getProducts = (page = 1, category = null, searchQuery = null, minPr
   if (minPrice !== null) params.min_price = minPrice;
   if (maxPrice !== null) params.max_price = maxPrice;
   if (minRating !== null) params.min_rating = minRating;
+  
   return instance.get('/products/', { params }); // This becomes /api/products/?page=1&category=5
 };
 
