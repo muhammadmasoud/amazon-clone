@@ -2,7 +2,7 @@ import stripe
 import logging
 from django.conf import settings
 from django.utils import timezone
-from .models import Payment, StripeWebhookEvent
+from .models import Payment
 from orders.models import Order
 
 # Configure Stripe
@@ -107,50 +107,6 @@ class StripeService:
             raise Exception(f"Payment confirmation error: {str(e)}")
         except Exception as e:
             logger.error(f"Error confirming payment: {e}")
-            raise
-    
-    @staticmethod
-    def handle_webhook_event(event_data):
-        """
-        Handle Stripe webhook events
-        """
-        try:
-            event_id = event_data['id']
-            event_type = event_data['type']
-            
-            # Check if event already processed
-            webhook_event, created = StripeWebhookEvent.objects.get_or_create(
-                stripe_event_id=event_id,
-                defaults={'event_type': event_type}
-            )
-            
-            if not created and webhook_event.processed:
-                logger.info(f"Webhook event {event_id} already processed")
-                return
-            
-            # Process different event types
-            if event_type == 'payment_intent.succeeded':
-                payment_intent = event_data['data']['object']
-                StripeService.confirm_payment(payment_intent['id'])
-                
-            elif event_type == 'payment_intent.payment_failed':
-                payment_intent = event_data['data']['object']
-                try:
-                    payment = Payment.objects.get(
-                        stripe_payment_intent_id=payment_intent['id']
-                    )
-                    payment.status = 'failed'
-                    payment.failure_reason = payment_intent.get('last_payment_error', {}).get('message', 'Unknown error')
-                    payment.save()
-                except Payment.DoesNotExist:
-                    logger.error(f"Payment not found for failed intent: {payment_intent['id']}")
-            
-            # Mark webhook as processed
-            webhook_event.processed = True
-            webhook_event.save()
-            
-        except Exception as e:
-            logger.error(f"Error processing webhook event: {e}")
             raise
     
     @staticmethod

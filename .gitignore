@@ -3,3 +3,4 @@ django-env/
 __pycache__/*.pyc
 migrations/
 backend/media_root
+.env

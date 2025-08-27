@@ -59,10 +59,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField(required=True)
-    
-    def validate_email(self, value):
-        # Basic email validation (the serializer already validates email format)
-        return value
+
 
 class PasswordResetConfirmSerializer(serializers.Serializer):
     password = serializers.CharField(min_length=8, write_only=True)
