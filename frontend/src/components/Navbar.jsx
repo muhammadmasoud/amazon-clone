@@ -159,7 +159,7 @@ function Navbar({ setShowCategories }) {
 
               <Link to="/cart" className="relative">
                 <span className="absolute -top-2 -right-2 bg-[#f08804] text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                  {cart.items?.length || 0}
+                  {cart.cart_count || cart.total_items || 0}
                 </span>
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

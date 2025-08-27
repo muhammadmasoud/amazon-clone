@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { getProduct, getProductReviews } from '../api/products';
+import { fetchCartCount } from '../redux/actions/cartActions';
 import ProductActionButtons from '../components/ProductActionButtons';
 import ProductImageGallery from '../components/ProductImageGallery';
 import ProductReview from '../components/ProductReviews';
@@ -10,6 +12,7 @@ import { useAuth } from '../context/AuthContext';
 function ProductDetails() {
   const { id } = useParams();
   const { user } = useAuth();
+  const dispatch = useDispatch();
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -17,6 +20,13 @@ function ProductDetails() {
   const [error, setError] = useState(null);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [hasUserReviewed, setHasUserReviewed] = useState(false);
+
+  useEffect(() => {
+    // Fetch cart count when user is authenticated
+    if (user) {
+      dispatch(fetchCartCount());
+    }
+  }, [user, dispatch]);
 
   useEffect(() => {
     const fetchProduct = async () => {
