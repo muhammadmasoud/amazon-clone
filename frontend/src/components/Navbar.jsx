@@ -49,9 +49,9 @@ function Navbar({ setShowCategories }) {
         {/* Logo */}
         <Link to="/" className="flex items-center">
           <img
-            src="../public/vite.svg"
+            src="../public/amazon.png"
             alt="Amazon"
-            className="h-8 object-contain"
+            className="h-16 object-contain brightness-0 invert"
           />
         </Link>
         {/* Add Categories Toggle Button */}
