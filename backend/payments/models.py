@@ -67,14 +67,3 @@ class Payment(models.Model):
     class Meta:
         ordering = ['-created_at']
 
-class StripeWebhookEvent(models.Model):
-    """
-    Model to track Stripe webhook events to prevent duplicate processing
-    """
-    stripe_event_id = models.CharField(max_length=200, unique=True)
-    event_type = models.CharField(max_length=100)
-    processed = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
-    def __str__(self):
-        return f"Webhook {self.stripe_event_id} - {self.event_type}"

@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 import uuid
+from django.utils import timezone
+from datetime import timedelta
 
 
 class User(AbstractUser):
@@ -29,7 +31,6 @@ class User(AbstractUser):
         
     def generate_password_reset_token(self):
         """Generate a new password reset token"""
-        from django.utils import timezone
         self.password_reset_token = uuid.uuid4()
         self.password_reset_token_created = timezone.now()
         self.save()
@@ -38,6 +39,4 @@ class User(AbstractUser):
         """Check if password reset token is still valid (24 hours)"""
         if not self.password_reset_token or not self.password_reset_token_created:
             return False
-        from django.utils import timezone
-        from datetime import timedelta
         return timezone.now() - self.password_reset_token_created < timedelta(hours=24)

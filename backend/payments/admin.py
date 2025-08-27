@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Payment, StripeWebhookEvent
+from .models import Payment
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
@@ -38,10 +38,3 @@ class PaymentAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-
-@admin.register(StripeWebhookEvent)
-class StripeWebhookEventAdmin(admin.ModelAdmin):
-    list_display = ['stripe_event_id', 'event_type', 'processed', 'created_at']
-    list_filter = ['event_type', 'processed', 'created_at']
-    search_fields = ['stripe_event_id', 'event_type']
-    readonly_fields = ['stripe_event_id', 'event_type', 'created_at']
