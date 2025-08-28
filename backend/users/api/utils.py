@@ -8,8 +8,9 @@ def send_verification_email(user):
     """Send email verification email to user"""
     subject = 'Verify your Amazon Clone account'
     
-    # Create verification URL
-    verification_url = f"{settings.FRONTEND_URL}/verify-email/{user.email_verification_token}"
+    # Create verification URL - ensure no double slashes
+    frontend_url = settings.FRONTEND_URL.rstrip('/')
+    verification_url = f"{frontend_url}/verify-email/{user.email_verification_token}"
     
     # HTML email content with fixed button styling
     html_message = f"""
@@ -137,8 +138,9 @@ def send_password_reset_email(user):
     """Send password reset email to user"""
     subject = 'Reset your Amazon Clone password'
     
-    # Create password reset URL
-    reset_url = f"{settings.FRONTEND_URL}/reset-password/{user.password_reset_token}"
+    # Create password reset URL - ensure no double slashes
+    frontend_url = settings.FRONTEND_URL.rstrip('/')
+    reset_url = f"{frontend_url}/reset-password/{user.password_reset_token}"
     
     # HTML email content
     html_message = f"""
