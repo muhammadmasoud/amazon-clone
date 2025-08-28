@@ -12,7 +12,7 @@ const FeaturedProducts = ({ title = "Featured Products", categoryId = null, limi
     const fetchFeaturedProducts = async () => {
       try {
         setIsLoading(true);
-        const response = await getProducts(1, categoryId, null, null, null, 4); // Get high-rated products
+        const response = await getProducts(1, categoryId, null, null, null, 4, null); // Get high-rated products
         setProducts(response.data.results.slice(0, limit));
       } catch (error) {
         console.error('Failed to fetch featured products:', error);

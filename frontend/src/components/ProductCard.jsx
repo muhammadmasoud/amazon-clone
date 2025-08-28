@@ -52,103 +52,155 @@ function ProductCard({ product }) {
     }
   };
   return (
-    <Link to={`/product/${product.id}`} className='block'>
-    <div className="bg-white border border-gray-200 overflow-hidden flex flex-col cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1 group">
-      
-      {/* Image Section - More spacious */}
-      <div className="w-full h-52 bg-gray-50 flex-shrink-0 overflow-hidden">
-        {product.image ? (
-          <img
-            src={product.image}
-            alt={product.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gradient-to-br from-gray-100 to-gray-200">
-            <div className="text-center">
-              <span className="text-sm">No Image</span>
-            </div>
+    <Link to={`/product/${product.id}`} className='block group'>
+      <div className="glass-card rounded-3xl shadow-2xl border border-white/30 overflow-hidden flex flex-col cursor-pointer hover:shadow-3xl transition-all duration-500 hover:-translate-y-2 hover:scale-[1.02] relative">
+        
+        {/* Stock badge */}
+        {product.stock <= 10 && product.stock > 0 && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className="bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
+              Only {product.stock} left!
+            </span>
           </div>
         )}
-      </div>
-
-      {/* Content Section - More breathing room */}
-      <div className="p-4 flex flex-col flex-grow space-y-3">
         
-        {/* Title - Better line height and spacing */}
-        <h3 className="text-base font-medium text-gray-900 line-clamp-2 leading-5 min-h-[2.5rem]">
-          {product.title}
-        </h3>
-
-        {/* Rating Section - More Amazon-like */}
-        <div className="flex items-center space-x-1">
-          <div className="flex space-x-0.5">
-            {[...Array(5)].map((_, i) => (
-              <span 
-                key={i} 
-                className={`text-sm ${i < Math.floor(product.average_rating || 0) ? 'text-yellow-400' : 'text-gray-300'}`}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-          <span className="text-sm text-blue-600 hover:text-orange-600 hover:underline cursor-pointer">
-            ({product.average_rating || 0})
-          </span>
-        </div>
-
-        {/* Price Section - More prominent */}
-        <div className="flex items-baseline space-x-1">
-          <span className="text-sm text-gray-600">$</span>
-          <span className="text-xl font-bold text-gray-900">{product.unit_price}</span>
-        </div>
-        
-        {/* Stock Status */}
-        {product.stock === 0 ? (
-          <div className="bg-red-50 border-l-4 border-red-500 p-2 rounded-r">
-            <p className="text-xs text-red-700 font-bold">
+        {product.stock === 0 && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className="bg-gradient-to-r from-gray-500 to-gray-700 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg">
               Out of Stock
-            </p>
-          </div>
-        ) : product.stock <= 10 && (
-          <div className="bg-red-50 border-l-4 border-red-500 p-2 rounded-r">
-            <p className="text-xs text-red-700 font-medium">
-              Only {product.stock} left in stock
-            </p>
+            </span>
           </div>
         )}
 
-        {/* Add to Cart Button - Conditional styling */}
-        <div className="mt-auto pt-3">
-          <button
-            onClick={handleAddToCart} 
-            disabled={product.stock === 0 || isAdding || showSuccess}
-            className={`w-full font-medium py-2 px-4 rounded-md transition-colors duration-200 text-sm border focus:outline-none focus:ring-2 focus:ring-offset-1 ${
-              product.stock === 0 
-                ? 'bg-gray-300 text-gray-500 border-gray-400 cursor-not-allowed' 
-                : showSuccess
-                ? 'bg-green-500 text-white border-green-600 cursor-not-allowed'
-                : showError
-                ? 'bg-red-500 text-white border-red-600 cursor-not-allowed'
-                : isAdding
-                ? 'bg-gray-400 text-gray-600 border-gray-500 cursor-not-allowed'
-                : 'bg-[#febd69] hover:bg-[#f3a847] text-gray-900 focus:ring-yellow-500'
-            }`}
-          >
-            {product.stock === 0 
-              ? 'Out of Stock' 
-              : showSuccess
-              ? '✓ Added!'
-              : showError
-              ? 'Error - Try Again'
-              : isAdding 
-              ? 'Adding...' 
-              : 'Add to Cart'
-            }
-          </button>
+        {/* Image Section */}
+        <div className="w-full h-52 bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden rounded-t-3xl relative">
+          {product.image ? (
+            <img
+              src={product.image}
+              alt={product.title}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400 bg-gradient-to-br from-gray-100 to-gray-200">
+              <div className="text-center">
+                <svg className="w-12 h-12 mx-auto mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                <span className="text-sm font-medium">No Image</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Gradient overlay on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        </div>
+
+        {/* Content Section */}
+        <div className="p-6 flex flex-col flex-grow space-y-4 bg-white/60 backdrop-blur-sm">
+          
+          {/* Title */}
+          <h3 className="text-base font-bold text-gray-900 line-clamp-2 leading-5 min-h-[2.5rem] group-hover:text-blue-700 transition-colors duration-300">
+            {product.title}
+          </h3>
+
+          {/* Rating Section */}
+          <div className="flex items-center space-x-2">
+            <div className="flex space-x-0.5">
+              {[...Array(5)].map((_, i) => (
+                <span 
+                  key={i} 
+                  className={`text-base ${i < Math.floor(product.average_rating || 0) ? 'text-yellow-400' : 'text-gray-300'} group-hover:scale-110 transition-transform duration-200`}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+            <span className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors cursor-pointer">
+              ({(product.average_rating || 0).toFixed(1)})
+            </span>
+          </div>
+
+          {/* Price Section */}
+          <div className="flex items-baseline space-x-1">
+            <span className="text-sm text-gray-600 font-medium">$</span>
+            <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              {product.unit_price}
+            </span>
+          </div>
+
+          {/* Add to Cart Button */}
+          <div className="mt-auto pt-2">
+            <button
+              onClick={handleAddToCart} 
+              disabled={product.stock === 0 || isAdding || showSuccess}
+              className={`w-full font-semibold py-3 px-4 rounded-2xl transition-all duration-300 text-sm border-2 focus:outline-none focus:ring-4 focus:ring-offset-2 transform hover:scale-105 active:scale-95 relative overflow-hidden group ${
+                product.stock === 0 
+                  ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-gray-600 border-gray-400 cursor-not-allowed shadow-lg' 
+                  : showSuccess
+                  ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white border-green-400 cursor-not-allowed shadow-lg'
+                  : showError
+                  ? 'bg-gradient-to-r from-red-500 to-pink-500 text-white border-red-400 cursor-not-allowed shadow-lg'
+                  : isAdding
+                  ? 'bg-gradient-to-r from-gray-400 to-gray-500 text-gray-700 border-gray-500 cursor-not-allowed shadow-lg'
+                  : 'bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white border-orange-400 focus:ring-orange-300 shadow-xl hover:shadow-2xl'
+              }`}
+            >
+              <span className="relative z-10 flex items-center justify-center">
+                {product.stock === 0 
+                  ? (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      Out of Stock
+                    </>
+                  )
+                  : showSuccess
+                  ? (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Added to Cart!
+                    </>
+                  )
+                  : showError
+                  ? (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                      Error - Try Again
+                    </>
+                  )
+                  : isAdding 
+                  ? (
+                    <>
+                      <svg className="w-4 h-4 mr-2 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                      Adding...
+                    </>
+                  )
+                  : (
+                    <>
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17M17 13v4a2 2 0 01-2 2H9a2 2 0 01-2-2v-4m8 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v4.01" />
+                      </svg>
+                      Add to Cart
+                    </>
+                  )
+                }
+              </span>
+              
+              {/* Shine effect */}
+              {!product.stock === 0 && !isAdding && !showSuccess && !showError && (
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out"></div>
+              )}
+            </button>
+          </div>
         </div>
       </div>
-    </div>
     </Link>
   );
   

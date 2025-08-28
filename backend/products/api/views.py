@@ -67,6 +67,40 @@ def view_add_product(request):
             except (ValueError, TypeError):
                 return Response({"error": "Invalid min_rating. Must be an integer between 1 and 5."}, status=status.HTTP_400_BAD_REQUEST)
         
+        # Add sorting functionality
+        sort_by = request.query_params.get('sort_by', 'relevance')
+        
+        # If min_rating filter is applied, we already have avg_rating annotation
+        # Otherwise, add it for rating-based sorting
+        if min_rating is None and sort_by == 'rating':
+            from django.db.models import Avg
+            products = products.annotate(avg_rating=Avg('reviews__rating'))
+        
+        # Apply sorting
+        if sort_by == 'price_asc':
+            products = products.order_by('unit_price')
+        elif sort_by == 'price_desc':
+            products = products.order_by('-unit_price')
+        elif sort_by == 'rating':
+            # Sort by rating (highest first), handle null ratings
+            from django.db.models import Case, When, Value, IntegerField
+            products = products.annotate(
+                rating_for_sort=Case(
+                    When(avg_rating__isnull=True, then=Value(0)),
+                    default='avg_rating',
+                    output_field=IntegerField()
+                )
+            ).order_by('-rating_for_sort', '-date_added')
+        elif sort_by == 'newest':
+            products = products.order_by('-date_added')
+        else:  # relevance or default
+            # For search queries, maintain relevance. For category browsing, show newest first
+            if search_query:
+                # Keep default relevance ordering for search
+                pass
+            else:
+                products = products.order_by('-date_added')
+        
         # Ensure no duplicates in the final queryset
         products = products.distinct()
             

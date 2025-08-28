@@ -13,7 +13,7 @@ const DealsSection = () => {
       try {
         setIsLoading(true);
         // Fetch products and simulate deals (in a real app, you'd have a deals API)
-        const response = await getProducts(1, null, null, null, 100); // Products under $100
+        const response = await getProducts(1, null, null, null, 100, null, null); // Products under $100
         const dealsData = response.data.results.slice(0, 6).map(product => ({
           ...product,
           originalPrice: (parseFloat(product.unit_price) * 1.2).toFixed(2), // Simulate original price

@@ -1,7 +1,7 @@
 import instance from './axios'; // Import the pre-configured axios instance
 
 // Function to get a paginated list of products
-export const getProducts = (page = 1, category = null, searchQuery = null, minPrice = null, maxPrice = null, minRating = null) => {
+export const getProducts = (page = 1, category = null, searchQuery = null, minPrice = null, maxPrice = null, minRating = null, sortBy = null) => {
   const params = { page }; // Always send the page number
   if (category) {
     params.category = category; // Add category filter if provided
@@ -10,6 +10,7 @@ export const getProducts = (page = 1, category = null, searchQuery = null, minPr
   if (minPrice !== null) params.min_price = minPrice;
   if (maxPrice !== null) params.max_price = maxPrice;
   if (minRating !== null) params.min_rating = minRating;
+  if (sortBy) params.sort_by = sortBy;
   
   return instance.get('/products/', { params }); // This becomes /api/products/?page=1&category=5
 };
