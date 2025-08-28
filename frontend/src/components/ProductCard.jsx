@@ -73,7 +73,7 @@ function ProductCard({ product }) {
         )}
 
         {/* Image Section */}
-        <div className="w-full h-52 bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden rounded-t-3xl relative">
+        <div className="w-full h-64 bg-gradient-to-br from-gray-100 to-gray-200 flex-shrink-0 overflow-hidden rounded-t-3xl relative">
           {product.image ? (
             <img
               src={product.image}
@@ -96,10 +96,10 @@ function ProductCard({ product }) {
         </div>
 
         {/* Content Section */}
-        <div className="p-6 flex flex-col flex-grow space-y-4 bg-white/60 backdrop-blur-sm">
+        <div className="p-8 flex flex-col flex-grow space-y-4 bg-white/60 backdrop-blur-sm">
           
           {/* Title */}
-          <h3 className="text-base font-bold text-gray-900 line-clamp-2 leading-5 min-h-[2.5rem] group-hover:text-blue-700 transition-colors duration-300">
+          <h3 className="text-lg font-bold text-gray-900 line-clamp-2 leading-6 min-h-[3rem] group-hover:text-blue-700 transition-colors duration-300">
             {product.title}
           </h3>
 
@@ -109,21 +109,21 @@ function ProductCard({ product }) {
               {[...Array(5)].map((_, i) => (
                 <span 
                   key={i} 
-                  className={`text-base ${i < Math.floor(product.average_rating || 0) ? 'text-yellow-400' : 'text-gray-300'} group-hover:scale-110 transition-transform duration-200`}
+                  className={`text-lg ${i < Math.floor(product.average_rating || 0) ? 'text-yellow-400' : 'text-gray-300'} group-hover:scale-110 transition-transform duration-200`}
                 >
                   ★
                 </span>
               ))}
             </div>
-            <span className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors cursor-pointer">
+            <span className="text-base text-blue-600 hover:text-blue-800 font-medium transition-colors cursor-pointer">
               ({(product.average_rating || 0).toFixed(1)})
             </span>
           </div>
 
           {/* Price Section */}
           <div className="flex items-baseline space-x-1">
-            <span className="text-sm text-gray-600 font-medium">$</span>
-            <span className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+            <span className="text-base text-gray-600 font-medium">$</span>
+            <span className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
               {product.unit_price}
             </span>
           </div>

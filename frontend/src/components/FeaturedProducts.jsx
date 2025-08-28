@@ -64,10 +64,10 @@ const FeaturedProducts = ({ title = "Featured Products", categoryId = null, limi
             <div className="h-12 bg-gradient-to-r from-indigo-200 to-blue-200 rounded-2xl w-32 animate-pulse"></div>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-white/60 backdrop-blur-md rounded-2xl p-4 animate-pulse">
-                <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl mb-4"></div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="bg-white/60 backdrop-blur-md rounded-2xl p-6 animate-pulse">
+                <div className="aspect-square bg-gradient-to-br from-gray-200 to-gray-300 rounded-xl mb-6"></div>
                 <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full mb-2"></div>
                 <div className="h-4 bg-gradient-to-r from-gray-200 to-gray-300 rounded-full w-3/4"></div>
               </div>
@@ -117,14 +117,14 @@ const FeaturedProducts = ({ title = "Featured Products", categoryId = null, limi
           </button>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
           {products.map((product) => (
             <div key={product.id} className="group transform hover:scale-105 transition-all duration-500 hover:-translate-y-2">
-              <div className="bg-white/80 backdrop-blur-md rounded-2xl p-4 shadow-xl hover:shadow-2xl 
+              <div className="bg-white/80 backdrop-blur-md rounded-2xl p-6 shadow-xl hover:shadow-2xl 
                             transition-all duration-500 border border-white/50 hover:border-white/80 
                             relative overflow-hidden">
                 {/* Enhanced ProductCard styling */}
-                <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden mb-4 
+                <div className="aspect-square bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl overflow-hidden mb-6 
                               group-hover:scale-110 transition-transform duration-500 relative">
                   <img
                     src={product.image || '/placeholder-product.svg'}
