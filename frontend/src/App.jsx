@@ -27,6 +27,7 @@ const Cartpage = lazy(() => import("./pages/Cartpage"));
 const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
 const PaymentPage = lazy(() => import("./pages/PaymentPage"));
 const PaymentSuccessPage = lazy(() => import("./pages/PaymentSuccessPage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 function App() {
   return (
@@ -113,7 +114,10 @@ function App() {
                   <Route path="/track" element={<OrderTracking />} />
                   <Route path="/track/:orderNumber" element={<OrderTracking />} />
                   <Route path="/contact" element={<Contact />} />
-                  {/* Add your other routes here */}
+                  {/* 404 page route */}
+                  <Route path="/404" element={<NotFound />} />
+                  {/* Catch-all route for 404 */}
+                  <Route path="*" element={<NotFound />} />
                 </Routes>
               </Suspense>
             </main>

@@ -64,13 +64,22 @@ const QuickCategories = () => {
   }, []);
 
   const handleCategoryClick = (categoryId) => {
+    // Prevent double clicks
+    if (handleCategoryClick.isNavigating) return;
+    handleCategoryClick.isNavigating = true;
+    
     navigate(`/?category=${categoryId}&view=products`);
+    
+    // Reset the flag after a short delay
+    setTimeout(() => {
+      handleCategoryClick.isNavigating = false;
+    }, 500);
   };
 
   if (isLoading) {
     return (
-      <div className="relative bg-gradient-to-br from-white via-blue-50 to-purple-50 p-6 rounded-2xl shadow-xl border border-white/20 backdrop-blur-sm overflow-hidden">
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/5 to-purple-400/5 rounded-full blur-2xl"></div>
+      <div className="relative bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-xl border border-white/30 overflow-hidden">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl"></div>
         
         <div className="relative z-10">
           <div className="flex items-center mb-6">
@@ -93,9 +102,9 @@ const QuickCategories = () => {
   }
 
   return (
-    <div className="relative bg-gradient-to-br from-white via-blue-50 to-purple-50 p-6 rounded-2xl shadow-xl border border-white/20 backdrop-blur-sm overflow-hidden">
+    <div className="relative bg-white/80 backdrop-blur-lg p-6 rounded-2xl shadow-xl border border-white/30 overflow-hidden">
       {/* Simplified background decoration */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/5 to-purple-400/5 rounded-full blur-2xl"></div>
+      <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-2xl"></div>
       
       <div className="relative z-10">
         <div className="flex items-center mb-6">

@@ -22,22 +22,22 @@ const Footer = () => {
             <h3 className="text-white font-bold text-lg mb-4">Get to Know Us</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/about" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   About Amazon Clone
                 </Link>
               </li>
               <li>
-                <Link to="/careers" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Careers
                 </Link>
               </li>
               <li>
-                <Link to="/investor" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Investor Relations
                 </Link>
               </li>
               <li>
-                <Link to="/press" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Press Releases
                 </Link>
               </li>
@@ -49,22 +49,22 @@ const Footer = () => {
             <h3 className="text-white font-bold text-lg mb-4">Make Money with Us</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/sell" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Sell on Amazon Clone
                 </Link>
               </li>
               <li>
-                <Link to="/affiliate" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Become an Affiliate
                 </Link>
               </li>
               <li>
-                <Link to="/advertise" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Advertise Your Products
                 </Link>
               </li>
               <li>
-                <Link to="/host" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Host an Amazon Hub
                 </Link>
               </li>
@@ -76,22 +76,22 @@ const Footer = () => {
             <h3 className="text-white font-bold text-lg mb-4">Payment Products</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/credit-card" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Amazon Clone Rewards Visa
                 </Link>
               </li>
               <li>
-                <Link to="/store-card" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Amazon Clone Store Card
                 </Link>
               </li>
               <li>
-                <Link to="/business-card" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Amazon Clone Business Card
                 </Link>
               </li>
               <li>
-                <Link to="/reload" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Shop with Points
                 </Link>
               </li>
@@ -113,7 +113,7 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/returns" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
+                <Link to="/404" className="text-gray-300 hover:text-white transition-colors duration-200 text-sm">
                   Returns & Replacements
                 </Link>
               </li>
@@ -211,37 +211,37 @@ const Footer = () => {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 text-xs text-gray-400">
             <div>
-              <Link to="/conditions" className="hover:text-white transition-colors">
+              <Link to="/404" className="hover:text-white transition-colors">
                 Conditions of Use
               </Link>
             </div>
             <div>
-              <Link to="/privacy" className="hover:text-white transition-colors">
+              <Link to="/404" className="hover:text-white transition-colors">
                 Privacy Notice
               </Link>
             </div>
             <div>
-              <Link to="/ads" className="hover:text-white transition-colors">
+              <Link to="/404" className="hover:text-white transition-colors">
                 Interest-Based Ads
               </Link>
             </div>
             <div>
-              <Link to="/accessibility" className="hover:text-white transition-colors">
+              <Link to="/404" className="hover:text-white transition-colors">
                 Accessibility
               </Link>
             </div>
             <div>
-              <Link to="/help" className="hover:text-white transition-colors">
+              <Link to="/404" className="hover:text-white transition-colors">
                 Help
               </Link>
             </div>
             <div>
-              <Link to="/cookies" className="hover:text-white transition-colors">
+              <Link to="/404" className="hover:text-white transition-colors">
                 Cookies Notice
               </Link>
             </div>
             <div>
-              <Link to="/sustainability" className="hover:text-white transition-colors">
+              <Link to="/404" className="hover:text-white transition-colors">
                 Sustainability
               </Link>
             </div>

@@ -51,7 +51,7 @@ const FeaturedProducts = ({ title = "Featured Products", categoryId = null, limi
 
   if (isLoading) {
     return (
-      <div className="relative bg-gradient-to-br from-white via-indigo-50 to-blue-50 p-8 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-sm overflow-hidden">
+      <div className="relative bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-white/30 overflow-hidden">
         <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-indigo-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-purple-400/10 to-pink-400/10 rounded-full blur-2xl"></div>
         
@@ -83,7 +83,7 @@ const FeaturedProducts = ({ title = "Featured Products", categoryId = null, limi
   }
 
   return (
-    <div className="relative bg-gradient-to-br from-white via-indigo-50 to-blue-50 p-8 rounded-2xl shadow-2xl border border-white/20 backdrop-blur-sm overflow-hidden">
+    <div className="relative bg-white/80 backdrop-blur-lg p-8 rounded-2xl shadow-2xl border border-white/30 overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-0 right-0 w-36 h-36 bg-gradient-to-br from-indigo-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
       <div className="absolute bottom-0 left-0 w-28 h-28 bg-gradient-to-tr from-purple-400/10 to-pink-400/10 rounded-full blur-2xl"></div>

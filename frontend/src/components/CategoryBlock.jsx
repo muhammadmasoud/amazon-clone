@@ -12,12 +12,12 @@ const CategoryBlock = ({ category, products = [] }) => {
   };
 
   return (
-    <div className="group relative bg-gradient-to-br from-white via-slate-50 to-gray-50 p-6 rounded-2xl shadow-2xl 
-                  hover:shadow-3xl transition-all duration-500 border border-white/50 hover:border-white/80 
-                  backdrop-blur-sm overflow-hidden hover:-translate-y-2 hover:scale-105 active:scale-95">
+    <div className="group relative bg-white/85 backdrop-blur-lg p-6 rounded-2xl shadow-2xl 
+                  hover:shadow-3xl transition-all duration-500 border border-white/40 hover:border-white/60 
+                  overflow-hidden hover:-translate-y-2 hover:scale-105 active:scale-95">
       {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-400/5 to-purple-400/5 rounded-full blur-2xl"></div>
-      <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-indigo-400/5 to-pink-400/5 rounded-full blur-xl"></div>
+      <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-br from-blue-400/8 to-purple-400/8 rounded-full blur-2xl"></div>
+      <div className="absolute bottom-0 left-0 w-20 h-20 bg-gradient-to-tr from-indigo-400/8 to-pink-400/8 rounded-full blur-xl"></div>
       
       <div className="relative z-10">
         <div className="mb-6">
