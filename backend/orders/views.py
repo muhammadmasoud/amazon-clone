@@ -8,9 +8,13 @@ from rest_framework import status, generics
 from rest_framework.decorators import api_view, permission_classes
 from datetime import datetime, timedelta
 from decimal import Decimal
+import logging
+
+logger = logging.getLogger(__name__)
 from .models import Order, OrderItem
 from products.models import Product
 from cart.models import Cart, CartItem
+from users.models import User
 from .serializers import (
     OrderSerializer, 
     UserOrderHistorySerializer, 
@@ -47,132 +51,169 @@ class PlaceOrderView(APIView):
         validated_data = serializer.validated_data
         cart_items = validated_data['cart']
         
-        # Check if user already has a pending order from the last 30 seconds (prevent duplicates)
-        recent_order = Order.objects.filter(
-            user=user, 
-            created_at__gte=timezone.now() - timedelta(seconds=30),
-            status='pending'
-        ).first()
+        # Enhanced duplicate prevention for cash on delivery orders
+        from django.db import transaction
         
-        if recent_order:
-            return Response({
-                'detail': 'You have a recent pending order. Please wait a moment before placing another order.',
-                'order_id': recent_order.id
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Get user's cart to apply any existing promo codes
-        user_cart = None
-        try:
-            user_cart = Cart.objects.get(user=user)
-        except Cart.DoesNotExist:
-            pass
-
-        # Create the main order object
-        order_data = {
-            'user': user,
-            'shipping_address': validated_data['shipping_address'],
-            'shipping_city': validated_data.get('shipping_city', ''),
-            'shipping_state': validated_data.get('shipping_state', ''),
-            'shipping_zip': validated_data.get('shipping_zip', ''),
-            'shipping_country': validated_data.get('shipping_country', 'USA'),
-            'shipping_phone': validated_data.get('shipping_phone', ''),
-            'payment_method': validated_data.get('payment_method', 'cash_on_delivery'),
-            'customer_notes': validated_data.get('customer_notes', ''),
-        }
-        
-        # Apply promo code if exists
-        if user_cart and user_cart.promo_code:
-            order_data['promo_code'] = user_cart.promo_code
-            order_data['discount_amount'] = user_cart.discount_amount
-
-        try:
-            order = Order.objects.create(**order_data)
-        except Exception as e:
-            return Response({
-                'detail': f'Failed to create order: {str(e)}'
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Calculate totals
-        subtotal = Decimal('0')
-        items_created = []
-        
-        # Process each item in the cart
-        for item in cart_items:
-            try:
-                product = Product.objects.get(id=item['product_id'])
-                quantity = int(item['quantity'])
-                price = product.unit_price
+        # Use atomic transaction with database-level locking to prevent race conditions
+        with transaction.atomic():
+            # Lock the user record to prevent concurrent order creation
+            user_locked = User.objects.select_for_update().get(id=user.id)
+            
+            logger.info(f"Processing order request for user {user.id} with {len(cart_items)} items")
+            
+            # Check if user already has any pending order (now within the locked transaction)
+            existing_pending_order = Order.objects.filter(
+                user=user_locked, 
+                status='pending',
+                payment_method='cash_on_delivery'
+            ).first()
+            
+            if existing_pending_order:
+                # Check if the existing order has the same items as the cart
+                existing_items = existing_pending_order.items.all()
+                cart_product_ids = [item['product_id'] for item in cart_items]
+                existing_product_ids = [item.product.id for item in existing_items]
                 
-                # Check if enough stock is available
-                if product.stock < quantity:
-                    # If not enough stock, delete the order and return error
-                    order.delete()
+                logger.info(f"User {user.id} attempting to place order with products {cart_product_ids}, existing order has {existing_product_ids}")
+                
+                # If it's the same products, return the existing order instead of creating a new one
+                if set(cart_product_ids) == set(existing_product_ids):
+                    logger.info(f"Preventing duplicate order for user {user.id}, returning existing order {existing_pending_order.id}")
                     return Response({
-                        'detail': f'Insufficient stock for {product.title}. Available: {product.stock}, requested: {quantity}'
-                    }, status=status.HTTP_400_BAD_REQUEST)
+                        'message': 'You already have a pending order with the same items.',
+                        'order': OrderSerializer(existing_pending_order).data,
+                        'is_duplicate': True
+                    }, status=status.HTTP_200_OK)
+                else:
+                    # Different items - warn but allow for now, but with stricter time check
+                    recent_order = Order.objects.filter(
+                        user=user_locked, 
+                        created_at__gte=timezone.now() - timedelta(minutes=5),
+                        status='pending'
+                    ).first()
+                    
+                    if recent_order:
+                        logger.info(f"Preventing recent duplicate order for user {user.id}, recent order {recent_order.id}")
+                        return Response({
+                            'error': 'You have a recent pending order. Please wait a few minutes before placing another order or complete your existing order first.',
+                            'existing_order_id': recent_order.id,
+                            'existing_order_number': recent_order.order_number,
+                            'is_duplicate': True
+                        }, status=status.HTTP_409_CONFLICT)  # Changed to 409 Conflict instead of 400
+            
+            # If we get here, no duplicate order exists, so proceed with creating a new order
+            # Get user's cart to apply any existing promo codes
+            user_cart = None
+            try:
+                user_cart = Cart.objects.get(user=user_locked)
+            except Cart.DoesNotExist:
+                pass
+
+            # Create the main order object
+            order_data = {
+                'user': user_locked,
+                'shipping_address': validated_data['shipping_address'],
+                'shipping_city': validated_data.get('shipping_city', ''),
+                'shipping_state': validated_data.get('shipping_state', ''),
+                'shipping_zip': validated_data.get('shipping_zip', ''),
+                'shipping_country': validated_data.get('shipping_country', 'USA'),
+                'shipping_phone': validated_data.get('shipping_phone', ''),
+                'payment_method': validated_data.get('payment_method', 'cash_on_delivery'),
+                'customer_notes': validated_data.get('customer_notes', ''),
+            }
+            
+            # Apply promo code if exists
+            if user_cart and user_cart.promo_code:
+                order_data['promo_code'] = user_cart.promo_code
+                order_data['discount_amount'] = user_cart.discount_amount
+
+            # Create the order (still within the atomic transaction)
+            try:
+                # Create the order
+                order = Order.objects.create(**order_data)
                 
-                # Create order item with current product price
-                order_item = OrderItem.objects.create(
-                    order=order,
-                    product=product,
-                    quantity=quantity,
-                    price=price,
-                    product_title=product.title,
-                    product_sku=getattr(product, 'sku', ''),
-                )
+                # Calculate totals
+                subtotal = Decimal('0')
+                items_created = []
                 
-                items_created.append(order_item)
+                # Process each item in the cart
+                for item in cart_items:
+                    try:
+                        product = Product.objects.select_for_update().get(id=item['product_id'])
+                        quantity = int(item['quantity'])
+                        price = product.unit_price
+                        
+                        # Check if enough stock is available
+                        if product.stock < quantity:
+                            raise ValueError(f'Insufficient stock for {product.title}. Available: {product.stock}, requested: {quantity}')
+                        
+                        # Create order item with current product price
+                        order_item = OrderItem.objects.create(
+                            order=order,
+                            product=product,
+                            quantity=quantity,
+                            price=price,
+                            product_title=product.title,
+                            product_sku=getattr(product, 'sku', ''),
+                        )
+                        
+                        items_created.append(order_item)
+                        
+                        # Update product stock (reduce by ordered quantity)
+                        product.stock -= quantity
+                        product.save()
+                        
+                        # Add to subtotal
+                        subtotal += price * quantity
+                        
+                    except Product.DoesNotExist:
+                        raise ValueError(f'Product with ID {item["product_id"]} not found')
+                    except (ValueError, KeyError) as e:
+                        raise ValueError(f'Invalid cart data: {str(e)}')
+
+                # Calculate order totals
+                order.subtotal = subtotal
                 
-                # Update product stock (reduce by ordered quantity)
-                product.stock -= quantity
-                product.save()
+                # Calculate shipping cost (free shipping over $100)
+                if subtotal >= 100:
+                    order.shipping_cost = Decimal('0.00')
+                else:
+                    order.shipping_cost = Decimal('10.00')
                 
-                # Add to subtotal
-                subtotal += price * quantity
+                # Calculate tax (10%)
+                order.tax_amount = (subtotal * Decimal('0.10')).quantize(Decimal('0.01'))
                 
-            except Product.DoesNotExist:
-                # If product doesn't exist, clean up and return error
-                order.delete()
+                # Apply discount if any
+                discount = order.discount_amount or Decimal('0')
+                
+                # Calculate final total
+                order.total_amount = subtotal + order.shipping_cost + order.tax_amount - discount
+                order.save()
+
+                # Clear user's cart after successful order
+                if user_cart:
+                    user_cart.items.all().delete()
+                    user_cart.promo_code = None
+                    user_cart.discount_amount = 0
+                    user_cart.save()
+
+                logger.info(f"Successfully created order {order.id} for user {user.id}")
+                
+                # Return the created order data
                 return Response({
-                    'detail': f'Product with ID {item["product_id"]} not found'
-                }, status=status.HTTP_400_BAD_REQUEST)
-            except (ValueError, KeyError) as e:
-                order.delete()
+                    'message': 'Order placed successfully!',
+                    'order': OrderSerializer(order).data
+                }, status=status.HTTP_201_CREATED)
+                    
+            except ValueError as e:
                 return Response({
-                    'detail': f'Invalid cart data: {str(e)}'
+                    'detail': str(e)
                 }, status=status.HTTP_400_BAD_REQUEST)
-
-        # Calculate order totals
-        order.subtotal = subtotal
-        
-        # Calculate shipping cost (free shipping over $100)
-        if subtotal >= 100:
-            order.shipping_cost = Decimal('0.00')
-        else:
-            order.shipping_cost = Decimal('10.00')
-        
-        # Calculate tax (10%)
-        order.tax_amount = (subtotal * Decimal('0.10')).quantize(Decimal('0.01'))
-        
-        # Apply discount if any
-        discount = order.discount_amount or Decimal('0')
-        
-        # Calculate final total
-        order.total_amount = subtotal + order.shipping_cost + order.tax_amount - discount
-        order.save()
-
-        # Clear user's cart after successful order
-        if user_cart:
-            user_cart.items.all().delete()
-            user_cart.promo_code = None
-            user_cart.discount_amount = 0
-            user_cart.save()
-
-        # Return the created order data
-        return Response({
-            'message': 'Order placed successfully!',
-            'order': OrderSerializer(order).data
-        }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                logger.error(f"Error creating order for user {user.id}: {str(e)}")
+                return Response({
+                    'detail': f'Failed to create order: {str(e)}'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserOrderHistoryView(generics.ListAPIView):

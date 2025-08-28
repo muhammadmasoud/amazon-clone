@@ -248,7 +248,7 @@ const Footer = () => {
           </div>
           
           <div className="text-center mt-4 text-xs text-gray-400">
-            <p>© {currentYear} Amazon Clone, Inc. or its affiliates. Built with ❤️ by Muhammad Masoud</p>
+            <p>© {currentYear} Amazon Clone, Inc. or its affiliates.</p>
           </div>
         </div>
       </div>

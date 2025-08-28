@@ -11,6 +11,11 @@ export const getUserOrderHistory = (filters = {}) => {
   return instance.get(`/orders/history/?${params.toString()}`);
 };
 
+// Check for pending orders
+export const getPendingOrders = () => {
+  return instance.get('/orders/history/?status=pending');
+};
+
 // Get specific order details
 export const getOrderDetails = (orderId) => {
   return instance.get(`/orders/${orderId}/`);

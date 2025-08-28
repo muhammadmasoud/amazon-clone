@@ -43,6 +43,28 @@ def create_payment_intent(request):
         
         # Handle cart checkout vs existing order
         if order_id == 'cart-checkout':
+            # Check if user already has a pending payment for cart checkout
+            from django.db import transaction
+            
+            # Look for existing pending payment for this user
+            existing_payment = Payment.objects.filter(
+                user=request.user,
+                status='pending',
+                order__status='pending'
+            ).first()
+            
+            if existing_payment:
+                # Return existing payment intent instead of creating a new one
+                logger.info(f"Returning existing payment intent for user: {request.user.id}")
+                return Response({
+                    'payment_id': existing_payment.payment_id,
+                    'client_secret': existing_payment.stripe_client_secret,
+                    'amount': float(existing_payment.amount),
+                    'currency': existing_payment.currency,
+                    'order_number': existing_payment.order.order_number,
+                    'order_id': existing_payment.order.id,
+                }, status=status.HTTP_200_OK)
+            
             # Create order from cart items
             from cart.models import CartItem, Cart
             
@@ -65,39 +87,33 @@ def create_payment_intent(request):
             # Calculate total from cart
             total_amount = sum(item.quantity * item.product.unit_price for item in cart_items)
             
-            # Create order from cart
+            # Use atomic transaction to ensure order and items are created together
             try:
-                order = Order.objects.create(
-                    user=request.user,
-                    total_amount=total_amount,
-                    status='pending',
-                    shipping_address=''  # Will be updated when order is confirmed
-                )
-                logger.info(f"Order created: {order.id} for user: {request.user.id}")
+                with transaction.atomic():
+                    # Create order from cart
+                    order = Order.objects.create(
+                        user=request.user,
+                        total_amount=total_amount,
+                        status='pending',
+                        shipping_address=''  # Will be updated when order is confirmed
+                    )
+                    logger.info(f"Order created: {order.id} for user: {request.user.id}")
+                    
+                    # Add order items
+                    from orders.models import OrderItem
+                    for cart_item in cart_items:
+                        OrderItem.objects.create(
+                            order=order,
+                            product=cart_item.product,
+                            quantity=cart_item.quantity,
+                            price=cart_item.product.unit_price
+                        )
+                    logger.info(f"Created {cart_items.count()} order items for order: {order.id}")
+                    
             except Exception as e:
-                logger.error(f"Error creating order: {e}")
+                logger.error(f"Error creating order and items: {e}")
                 return Response(
                     {'error': f'Failed to create order: {str(e)}'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            
-            # Add order items
-            from orders.models import OrderItem
-            try:
-                for cart_item in cart_items:
-                    OrderItem.objects.create(
-                        order=order,
-                        product=cart_item.product,
-                        quantity=cart_item.quantity,
-                        price=cart_item.product.unit_price
-                    )
-                logger.info(f"Created {cart_items.count()} order items for order: {order.id}")
-            except Exception as e:
-                logger.error(f"Error creating order items: {e}")
-                # Clean up order if item creation fails
-                order.delete()
-                return Response(
-                    {'error': f'Failed to create order items: {str(e)}'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
         else:
@@ -166,6 +182,26 @@ def confirm_payment(request):
         payment, success = StripeService.confirm_payment(payment_intent_id)
         
         if success:
+            # Clean up any other pending orders for this user (to prevent duplicates)
+            from django.db import transaction
+            with transaction.atomic():
+                # Find other pending orders for the same user that aren't this order
+                other_pending_orders = Order.objects.filter(
+                    user=request.user,
+                    status='pending',
+                    is_paid=False
+                ).exclude(id=payment.order.id)
+                
+                if other_pending_orders.exists():
+                    logger.info(f"Cleaning up {other_pending_orders.count()} pending orders for user {request.user.id}")
+                    # Delete associated pending payments first
+                    Payment.objects.filter(
+                        order__in=other_pending_orders,
+                        status='pending'
+                    ).delete()
+                    # Delete the pending orders
+                    other_pending_orders.delete()
+            
             return Response({
                 'message': 'Payment confirmed successfully',
                 'payment': PaymentSerializer(payment).data,

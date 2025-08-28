@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext.jsx';
 import StripeCheckout from '../components/payment/StripeCheckout';
 import { placeOrder } from '../api/orders';
+import { getPendingOrders } from '../api/orders';
 import { 
   selectCartItems, 
   selectCartLoading, 
@@ -39,6 +40,7 @@ const CheckoutPage = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('stripe');
   const [showStripeCheckout, setShowStripeCheckout] = useState(false);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
+  const [orderSubmissionTimestamp, setOrderSubmissionTimestamp] = useState(null);
   
   // Shipping form state
   const [shippingForm, setShippingForm] = useState({
@@ -98,8 +100,41 @@ const CheckoutPage = () => {
       return;
     }
 
+    // Prevent multiple clicks and rapid submissions
+    if (isPlacingOrder) {
+      return;
+    }
+    
+    // Additional check: prevent submissions within 3 seconds of each other
+    const now = Date.now();
+    if (orderSubmissionTimestamp && (now - orderSubmissionTimestamp) < 3000) {
+      showNotification('Please wait before submitting another order.', 'warning');
+      return;
+    }
+    
+    setOrderSubmissionTimestamp(now);
     setIsPlacingOrder(true);
+    
     try {
+      // First check if user has any pending orders
+      try {
+        const pendingOrdersResponse = await getPendingOrders();
+        const pendingOrders = pendingOrdersResponse.data.results || pendingOrdersResponse.data;
+        
+        if (pendingOrders && pendingOrders.length > 0) {
+          const pendingOrder = pendingOrders[0];
+          showNotification(
+            `You already have a pending order (${pendingOrder.order_number}). Please complete or cancel it first.`, 
+            'warning'
+          );
+          navigate(`/orders/${pendingOrder.id}`);
+          return;
+        }
+      } catch (pendingOrderError) {
+        console.log('Failed to check pending orders:', pendingOrderError);
+        // Continue with order placement if pending check fails
+      }
+
       const orderData = {
         cart: cartItems.map(item => ({
           product_id: item.product.id,
@@ -110,6 +145,19 @@ const CheckoutPage = () => {
       };
 
       const response = await placeOrder(orderData);
+      
+      // Check if this was a duplicate order response
+      if (response.data?.is_duplicate) {
+        showNotification('Order already exists with the same items.', 'info');
+        const existingOrder = response.data.order;
+        
+        // Clear cart since order exists
+        await dispatch(clearCart());
+        navigate(`/orders/${existingOrder.id}`);
+        return;
+      }
+      
+      // Normal successful order creation
       showNotification('Cash on Delivery order placed successfully!', 'success');
       
       // Clear cart from Redux store
@@ -117,10 +165,53 @@ const CheckoutPage = () => {
       
       navigate(`/orders/${response.data.order.id}`);
     } catch (error) {
-      const errorMessage = error.response?.data?.detail || 
-                          error.response?.data?.message || 
-                          'Failed to place order. Please try again.';
-      showNotification(errorMessage, 'error');
+      console.log('Cash on delivery error response:', error.response);
+      console.log('Cash on delivery error data:', error.response?.data);
+      
+      // Enhanced error handling for duplicate orders
+      if (error.response?.status === 409 && error.response?.data?.existing_order_id) {
+        // Conflict status for duplicate orders
+        const existingOrderId = error.response.data.existing_order_id;
+        const existingOrderNumber = error.response.data.existing_order_number;
+        
+        showNotification(
+          `You already have a pending order (${existingOrderNumber}). Please complete or cancel it first.`, 
+          'warning'
+        );
+        
+        // Navigate to the existing order immediately
+        navigate(`/orders/${existingOrderId}`);
+        return; // Don't continue with order placement
+        
+      } else if (error.response?.status === 400 && error.response?.data?.existing_order_id) {
+        const existingOrderId = error.response.data.existing_order_id;
+        const existingOrderNumber = error.response.data.existing_order_number;
+        
+        showNotification(
+          `You already have a pending order (${existingOrderNumber}). Please complete or cancel it first.`, 
+          'warning'
+        );
+        
+        // Navigate to the existing order immediately
+        navigate(`/orders/${existingOrderId}`);
+        return; // Don't continue with order placement
+        
+      } else if ((error.response?.status === 200 || error.response?.status === 201) && error.response?.data?.is_duplicate) {
+        // User already has the same order - this is a success case but duplicate
+        showNotification('Order already exists with the same items.', 'info');
+        const existingOrder = error.response.data.order;
+        
+        // Clear cart since order exists
+        await dispatch(clearCart());
+        navigate(`/orders/${existingOrder.id}`);
+        return; // Don't continue with order placement
+        
+      } else {
+        const errorMessage = error.response?.data?.detail || 
+                            error.response?.data?.message || 
+                            'Failed to place order. Please try again.';
+        showNotification(errorMessage, 'error');
+      }
     } finally {
       setIsPlacingOrder(false);
     }
@@ -392,9 +483,20 @@ const CheckoutPage = () => {
                     <button
                       onClick={handleCashOnDelivery}
                       disabled={isPlacingOrder || !shippingForm.shipping_address.trim()}
-                      className="w-full bg-green-600 text-white py-3 px-4 rounded-md font-medium hover:bg-green-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors duration-200"
+                      className={`w-full py-3 px-4 rounded-md font-medium transition-colors duration-200 ${
+                        isPlacingOrder || !shippingForm.shipping_address.trim()
+                          ? 'bg-gray-300 cursor-not-allowed text-gray-500'
+                          : 'bg-green-600 text-white hover:bg-green-700'
+                      }`}
                     >
-                      {isPlacingOrder ? 'Placing Order...' : 'Place Order (Cash on Delivery)'}
+                      {isPlacingOrder ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-500 mr-2"></div>
+                          Placing Order...
+                        </div>
+                      ) : (
+                        'Place Order (Cash on Delivery)'
+                      )}
                     </button>
                   </div>
                 )}
