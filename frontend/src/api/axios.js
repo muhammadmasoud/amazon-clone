@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const instance = axios.create({
-    baseURL: 'http://localhost:8000/api',
+    baseURL: 'http://127.0.0.1:8000/api',
     headers: {
         'Content-Type': 'application/json'
     }
@@ -12,8 +12,9 @@ instance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
         // Don't add token for login, signup, and public endpoints
-        const publicPaths = ['/auth/login/', '/auth/signup/', '/payments/stripe-config/'];
-        if (token && !publicPaths.includes(config.url)) {
+        const publicPaths = ['/auth/login/', '/auth/signup/', '/payments/stripe-config/', '/auth/verify-email/', '/auth/resend-verification/', '/auth/forgot-password/', '/auth/reset-password/'];
+        const isPublicPath = publicPaths.some(path => config.url?.includes(path));
+        if (token && !isPublicPath) {
             config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
