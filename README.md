@@ -327,9 +327,6 @@ CORS_ALLOWED_ORIGINS=http://localhost:5173
    - Configure email settings properly
    - Check spam folder for verification emails
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 🙏 Acknowledgments
 
@@ -337,11 +334,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Stripe for payment processing
 - Tailwind CSS for styling
 - All contributors and testers
-
-## 📞 Support
-
-For support, email mahmoud@example.com or create an issue in this repository.
-
----
 
 **Note:** This is a learning project inspired by Amazon. Not affiliated with Amazon Inc.
